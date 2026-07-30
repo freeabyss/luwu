@@ -1,0 +1,35 @@
+{
+  "name": "abyss-devflow-plugin",
+  "id": "abyss-devflow-plugin",
+  "owner": {
+    "name": "abyss"
+  },
+  "metadata": {
+    "description": "个人开发流程与经验沉淀插件，包含 Leader 全流程编排、PRD、架构、TDD、测试、代码审查、知识沉淀 Skills。",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "abyss-devflow",
+      "source": "./",
+      "description": "个人开发流程与经验沉淀插件——Leader 全流程编排、PRD 撰写、架构设计/评审、TDD 开发、测试全流程、代码审查、知识沉淀。",
+      "version": "1.0.0",
+      "author": {
+        "name": "abyss"
+      },
+      "keywords": [
+        "development-workflow",
+        "leader",
+        "prd",
+        "architecture",
+        "tdd",
+        "testing",
+        "code-review",
+        "knowledge-management",
+        "ddd"
+      ],
+      "category": "development",
+      "strict": false
+    }
+  ]
+}

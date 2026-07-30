@@ -1,0 +1,47 @@
+{
+  "skill_name": "architecture",
+  "evals": [
+    {
+      "id": 1,
+      "name": "design-首次架构-DDD业务系统",
+      "prompt": "我们要做一个简单的电商系统，用户可以浏览商品、下单购买、支付。PRD在 docs/prd.md（模拟存在）。请进行技术方案设计。",
+      "expected_output": "1) 探测 docs/ 目录并读取 README；2) 按类别批量做术语澄清（冲突/模糊/缺失/重复/矛盾）；3) 启发式判断使用 DDD（业务型系统、有订单/支付领域）；4) 提供2-3种架构方案对比；5) 输出技术方案文档（用 ~/workspace/person/template/architecture-template.md 结构，不是 ~/workspace/document/）；6) 输出 ADR 和 CONTEXT.md；7) 自评审清单检查；8) 返回产物路径 + ≤5行摘要",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "design-架构调整-单体重构",
+      "prompt": "我们现有的订单系统是单体架构（docs/architecture/design.md 已存在，模拟），现在用户量增长到10万，下单接口性能出现瓶颈。请进行架构调整方案设计。",
+      "expected_output": "1) 加载 PRD + 现有架构文档 + ADR + CONTEXT + 相关代码；2) 识别现有架构问题；3) 术语澄清（关注'性能瓶颈'的量化：QPS多少、P95多少）；4) 提供重构方案（2-3种，含保守/平衡/激进）；5) 风险评估含兼容和迁移风险；6) 文档使用追加式变更记录，不覆盖历史",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "design-批量术语澄清",
+      "prompt": "我们要做一个高可用的中台系统，支持多租户，数据要一致，性能要快。请进行架构设计。",
+      "expected_output": "1) 必须首先按五类批量列出问题清单（冲突/模糊/缺失/重复/矛盾），而不是一次问一个问题；2) 模糊语言'高可用''多租户''一致''快'都要给出量化推荐值（SLA、多租户隔离方案、一致性级别、QPS/响应时间）；3) 每条疑点带推荐答案；4) 等用户确认后再继续设计",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "design-非DDD-简单CRUD",
+      "prompt": "我们要做一个内部管理后台，主要是用户管理、角色管理、操作日志查询，都是标准 CRUD。请做架构设计。",
+      "expected_output": "1) 启发式判断：CRUD、工具型、长期演进需求弱 → 不应强上 DDD，应推荐经典分层（Controller → Service → Mapper）；2) 询问用户确认后采用经典分层；3) 模板章节中 DDD 相关内容跳过，不强塞聚合根/领域事件",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "review-评审已有方案",
+      "prompt": "请对 docs/architecture/design.md 技术方案做独立评审，PRD在 docs/prd.md。",
+      "expected_output": "1) 进入 review 模式（不是 redesign）；2) 加载设计文档 + PRD + CONTEXT + ADR；3) 按 references/review-checklist.md 维度逐项评审；4) 输出分级问题清单（🔴高/🟡中/🟢低）；5) 每条问题有具体位置和可执行修订建议；6) 至少2-3条亮点；7) 明确结论（通过/有条件通过/不通过）；8) 写入 architecture/review.md 并返回摘要",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "编排模式-路径正确",
+      "prompt": "（leader 编排模式）你被 leader subagent 调用进行阶段③架构设计。项目根目录 /tmp/demo，文档根 docs/，PRD路径 docs/prd.md。设计完成后返回产物路径和摘要。",
+      "expected_output": "1) 从参数接受项目根、PRD路径，不询问；2) 不回传完整文档内容；3) 严格按 '产物路径 / 模式 / 结论 / ≤5行摘要' 格式返回；4) 路径使用 ~/workspace/person/ 而非 ~/workspace/document/",
+      "files": []
+    }
+  ]
+}
