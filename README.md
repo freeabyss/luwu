@@ -143,9 +143,9 @@ PRD 撰写专家，使用 prd skill 完成：
 - 逐条提问对齐需求（一次一个问题）
 - 需求存在多种路径时提供 2-3 方案对比
 - 分段呈现关键决策，HARD-GATE 确认后才写文档
-- UI/UX 设计决策自动联动 ui-ux-pro-max skill
+- UI/UX 设计决策自动联动 ui-ux-pro-max skill，输出页面原型（含布局线框图、页面流程、交互说明）
 - 数据可视化需求联动 dataviz skill
-- 多文档输出到 `docs/prd/`（主文档 + features/user-stories/ui-ux/non-functional/data-model/risks 子文档）
+- 多文档输出到 `docs/prd/`（主文档 + features/user-stories/prototype/non-functional/data-model/risks 子文档）
 - 自审清单 + 用户 review 门确保质量
 - 已有 PRD 的版本维护和变更记录
 
@@ -171,7 +171,7 @@ PRD 撰写 skill，融合 brainstorming 的设计确认流程：
 - 多文档输出到 `docs/prd/` 目录：
   - `README.md`：主文档（背景、目标、范围总纲、索引表）
   - `features.md`：功能需求详情（必建）
-  - `user-stories.md` / `ui-ux.md` / `non-functional.md` / `data-model.md` / `risks.md`：按需创建
+  - `user-stories.md` / `prototype.md` / `non-functional.md` / `data-model.md` / `risks.md`：按需创建
 - 自审清单（占位符/一致性/范围/歧义）
 - 用户 review 门：书面确认后才能进入架构阶段
 

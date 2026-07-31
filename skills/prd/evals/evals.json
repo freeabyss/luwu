@@ -5,14 +5,14 @@
       "id": 1,
       "name": "新建PRD-简单功能",
       "prompt": "我要做一个用户登录功能，支持账号密码登录，记住登录状态。请帮我写PRD。",
-      "expected_output": "1) Phase 0 探索项目上下文；2) Phase 1 逐条提问（不一次问多个），给选项+推荐答案；3) 简单需求可跳过方案对比；4) Phase 4 分段确认（HARD-GATE）；5) Phase 5 输出到 docs/prd/ 目录（README.md + features.md）；6) 无UI/UX不创建ui-ux.md；7) Phase 6 自审；8) Phase 7 等用户review",
+      "expected_output": "1) Phase 0 探索项目上下文；2) Phase 1 逐条提问（不一次问多个），给选项+推荐答案；3) 简单需求可跳过方案对比；4) Phase 4 分段确认（HARD-GATE）；5) Phase 5 输出到 docs/prd/ 目录（README.md + features.md）；6) 无UI不创建prototype.md；7) Phase 6 自审；8) Phase 7 等用户review",
       "files": []
     },
     {
       "id": 2,
       "name": "新建PRD-含UI复杂功能",
       "prompt": "我们要做一个电商商品详情页，支持商品展示、规格选择、加入购物车、立即购买。需要移动端适配。请写PRD。",
-      "expected_output": "1) Q9判断涉及UI，记录设计决策点；2) Phase 3.1调用ui-ux-pro-max；3) 创建 ui-ux.md 子文档存放7维度结论；4) 创建 user-stories.md 存放购物流程用户故事；5) features.md 按功能模块拆分（F01商品展示、F02规格选择、F03加购、F04立即购买）；6) 主文档README.md含文档索引表；7) 涉及交易场景需在risks.md或主文档中识别资损风险",
+      "expected_output": "1) Q9判断涉及UI，记录设计决策点；2) Phase 3.1调用ui-ux-pro-max；3) 创建 prototype.md 子文档存放7维度UI/UX结论+页面原型（页面清单/布局/线框图）；4) 创建 user-stories.md 存放购物流程用户故事；5) features.md 按功能模块拆分（F01商品展示、F02规格选择、F03加购、F04立即购买）；6) 主文档README.md含文档索引表；7) 涉及交易场景需在risks.md或主文档中识别资损风险",
       "files": []
     },
     {
