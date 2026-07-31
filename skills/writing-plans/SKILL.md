@@ -1,6 +1,8 @@
 ---
 name: writing-plans
-description: Use when you have a spec or requirements for a multi-step task, before touching code
+description: 任务拆解与计划编写。将需求拆分为可独立执行的细粒度任务，明确文件、接口、测试步骤和提交点，遵循 DRY/YAGNI/TDD。仅通过 /writing-plans 或被 flow 编排时显式调用。
+user-invocable: true
+disable-model-invocation: true
 ---
 
 # Writing Plans

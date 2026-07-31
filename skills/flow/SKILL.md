@@ -1,10 +1,11 @@
 ---
 name: flow
-description: 项目生命周期总指挥。编排需求入库、PRD、架构设计、架构评审、任务拆解、TDD 开发与代码审查、测试用例、测试执行、提交 PR 的唯一全量流程。使用 subagent 执行各阶段，leader 自身只做编排、状态判断、依赖调度、阶段验收和用户汇报。
+description: 项目全流程编排。从需求到 PR 的完整生命周期管理，按 ⓪-⑨ 阶段调度 subagent 执行，内置 Gate 确认与状态恢复机制。仅通过 /flow 显式调用。
 user-invocable: true
+disable-model-invocation: true
 ---
 
-# Leader：项目生命周期总指挥
+# Flow：项目全流程编排
 
 这是 luwu（路乌）开发流程的核心编排 skill。
 

@@ -1,6 +1,8 @@
 ---
 name: test
-description: 测试全流程助手——生成测试用例、评审用例质量、执行测试、产出测试报告。覆盖单元测试、集成测试、API 接口测试、E2E 测试。Use whenever 提到"测试"、"用例"、"测试用例"、"单元测试"、"集成测试"、"API 测试"、"E2E"、"覆盖率"、"测试报告"、"回归测试"，即便没有明说"生成用例"也要触发。
+description: 测试全流程。生成用例（五维度场景）、评审用例、执行测试、产出报告，覆盖单元/集成/API/E2E，支持多语言框架。仅通过 /test 显式调用。
+user-invocable: true
+disable-model-invocation: true
 ---
 
 # Test Skill - 测试全流程助手

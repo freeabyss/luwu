@@ -1,6 +1,8 @@
 ---
-name: requesting-code-review
-description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+name: code-review
+description: 代码审查。派发独立 reviewer subagent 对变更进行审查，按严重程度分级问题（阻塞/应修/建议）。仅通过 /code-review 显式调用。
+user-invocable: true
+disable-model-invocation: true
 ---
 
 # Requesting Code Review

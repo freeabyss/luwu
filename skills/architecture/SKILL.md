@@ -1,7 +1,8 @@
 ---
 name: architecture
-description: 基于PRD进行架构设计、技术方案编写或架构评审。支持 design（阶段③设计）与 review（阶段④评审）双模式，可独立调用或被 /leader 编排。设计前按五类批量做术语澄清（冲突/模糊/缺失/重复/矛盾），每条带推荐答案。业务型系统启发式建议DDD，简单CRUD走经典分层。模板取自 ~/workspace/person/template/。触发：技术方案/系统架构/接口/数据库/部署/评审/重构/选型，即使用户只说"做个架构""设计一下"也要主动用。
+description: 架构设计与技术方案评审。支持 design（设计）与 review（评审）双模式，涵盖术语澄清、DDD 启发式判断、多方案对比、文档拆分。仅通过 /architecture 显式调用。
 user-invocable: true
+disable-model-invocation: true
 ---
 
 # 架构设计与评审

@@ -1,7 +1,8 @@
 ---
 name: knowledge-deposit
-description: 从 inputs 目录和对话中自动提炼知识并沉淀到知识库
+description: 知识沉淀。扫描 inputs 目录增量内容，自动分类提炼为架构决策、工程规范、经验教训等结构化知识并归档。仅通过 /knowledge-deposit 显式调用。
 user-invocable: true
+disable-model-invocation: true
 ---
 
 # 知识沉淀 Skill

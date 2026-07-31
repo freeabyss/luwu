@@ -1,9 +1,9 @@
 ---
 name: prd
-description: 为产品、模块、功能或变更生成和维护产品需求文档（PRD）。仅当用户显式调用 /prd 命令，或被 sub-agent / 其他技能明确指示使用时才触发。不要基于关键词自动触发。
+description: PRD 撰写。逐条提问对齐需求，自动联动 UI/UX 与数据可视化设计，支持新建、维护、改写、完善模板四种模式。仅通过 /prd 显式调用。
 user-invocable: true
+disable-model-invocation: true
 ---
-
 # PRD 生成器
 
 创建和维护清晰、完整、可评审、可拆解、适合实现的产品需求文档。
@@ -29,7 +29,7 @@ user-invocable: true
 
 ### Phase 0: 启动与定位
 
-1. 优先查找已有 PRD：查看用户指定路径，或 Glob 查找 `doc/prd.md`、`doc/prd-*.md`、`prd.md`。
+1. 优先查找已有 PRD：查看用户指定路径，或 Glob 查找 `docs/prd.md`、`docs/prd-*.md`、`prd.md`。
 2. 找到多个候选时，使用 AskUserQuestion 询问用户选择目标文档。
 3. 确定任务类型（新建/维护/完善模板/改写补全）。
 4. 若任务是维护已有 PRD，先 Read 原文档，保留章节结构。
@@ -66,6 +66,7 @@ user-invocable: true
 
 **Q9. UI/UX 设计决策**
 本需求是否涉及以下任一项？
+
 - A. 新增页面或视图
 - B. 对已有页面进行视觉改版
 - C. 需要确定布局、视觉风格、配色、字体
@@ -78,6 +79,7 @@ user-invocable: true
 
 **Q10. 数据可视化需求**
 PRD 是否需要包含图表、图形、仪表盘或数据可视化？
+
 - 是：记录图表类型与数据维度，进入 Phase 3.2。
 - 否：跳过。
 
@@ -89,8 +91,8 @@ PRD 是否需要包含图表、图形、仪表盘或数据可视化？
 
 1. **在原 PRD 上修改**，不为每次变更新建独立 PRD，不拆 Blue-PRD/Ext-PRD/Micro-PRD。
 2. **功能级变更记录**：某功能发生新增、修改、删除、废弃、规则调整、页面调整、接口调整、字段调整时，在该功能章节下维护：
-   - `### 历史版本`（版本、日期、变更类型、摘要、影响范围、作者）
-   - `### 变更记录`（日期、变更前、变更后、原因、关联来源）
+  - `### 历史版本`（版本、日期、变更类型、摘要、影响范围、作者）
+  - `### 变更记录`（日期、变更前、变更后、原因、关联来源）
 3. **文档级变更记录**：PRD 结构、全局目标、发版计划、依赖系统、风险管理、非功能需求等全局内容变更，更新文档级"文档记录"。
 4. **正文同步更新**：历史记录不替代正文，变更后功能正文、流程、页面交互、处理逻辑、验收标准等当前有效内容必须同步更新。
 
@@ -102,13 +104,13 @@ PRD 是否需要包含图表、图形、仪表盘或数据可视化？
 
 1. 使用 `Skill` 工具调用 `ui-ux-pro-max`，传入：产品/功能类型、目标用户与场景、Q9 记录的设计决策点清单、目标技术栈（如 Vue/Ant Design Vue、uni-app、React 等）。
 2. 将返回结论提炼为 7 个维度：
-   - 风格定位（Style）
-   - 色板（Color Palette，含语义色 token）
-   - 字体与排版（Typography）
-   - 间距与布局系统（Spacing & Layout）
-   - 关键组件规范（Key Components）
-   - 交互模式与动效（Interaction & Motion）
-   - 响应式/可访问性（Responsive & Accessibility）
+  - 风格定位（Style）
+  - 色板（Color Palette，含语义色 token）
+  - 字体与排版（Typography）
+  - 间距与布局系统（Spacing &amp; Layout）
+  - 关键组件规范（Key Components）
+  - 交互模式与动效（Interaction &amp; Motion）
+  - 响应式/可访问性（Responsive &amp; Accessibility）
 3. 将结论写入 PRD「UI/UX 设计规范」章节。
 4. 若调用失败或结论不明确，在 PRD「待解决问题」中标注「UI/UX 设计规范未完成」，列出具体待决项，PRD 其他部分继续输出（不阻塞）。
 
@@ -174,3 +176,4 @@ PRD 是否需要包含图表、图形、仪表盘或数据可视化？
 
 - `references/PRD_TEMPLATES.md` — 统一 PRD 模板，生成/完善/改写 PRD 时必须读取
 - `docs/2026-07-26-prd-uiux-linkage-design.md` — UI/UX 联动设计记录（参考用）
+

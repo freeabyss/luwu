@@ -1,6 +1,8 @@
 ---
 name: test-driven-development
-description: Use when implementing any feature or bugfix, before writing implementation code
+description: TDD 测试驱动开发。遵循 Red-Green-Refactor 循环，要求先写失败测试再写实现代码，禁止跳过。仅通过 /tdd 或被 flow 编排时显式调用。
+user-invocable: true
+disable-model-invocation: true
 ---
 
 # Test-Driven Development (TDD)
