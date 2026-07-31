@@ -1,0 +1,47 @@
+{
+  "skill_name": "prd",
+  "evals": [
+    {
+      "id": 1,
+      "name": "新建PRD-简单功能",
+      "prompt": "我要做一个用户登录功能，支持账号密码登录，记住登录状态。请帮我写PRD。",
+      "expected_output": "1) Phase 0 探索项目上下文；2) Phase 1 逐条提问（不一次问多个），给选项+推荐答案；3) 简单需求可跳过方案对比；4) Phase 4 分段确认（HARD-GATE）；5) Phase 5 输出到 docs/prd/ 目录（README.md + features.md）；6) 无UI/UX不创建ui-ux.md；7) Phase 6 自审；8) Phase 7 等用户review",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "新建PRD-含UI复杂功能",
+      "prompt": "我们要做一个电商商品详情页，支持商品展示、规格选择、加入购物车、立即购买。需要移动端适配。请写PRD。",
+      "expected_output": "1) Q9判断涉及UI，记录设计决策点；2) Phase 3.1调用ui-ux-pro-max；3) 创建 ui-ux.md 子文档存放7维度结论；4) 创建 user-stories.md 存放购物流程用户故事；5) features.md 按功能模块拆分（F01商品展示、F02规格选择、F03加购、F04立即购买）；6) 主文档README.md含文档索引表；7) 涉及交易场景需在risks.md或主文档中识别资损风险",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "维护已有PRD-新增功能",
+      "prompt": "我们已有的PRD在 docs/prd/，现在要增加商品收藏功能。请更新PRD。",
+      "expected_output": "1) Phase 0 读取已有PRD文档结构；2) Phase 2 在 features.md 新增Fxx收藏功能；3) 在该功能下维护历史版本和变更记录；4) 主文档README.md功能清单索引表新增行；5) 不新建分类型PRD，在原文档上修改；6) 主文档'文档记录'追加变更记录",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "多文档拆分-大型需求",
+      "prompt": "我们要做一个完整的订单管理系统，包含下单、支付、退款、订单查询、售后。涉及用户端和商家端，有复杂状态流转和资损风险。请写PRD。",
+      "expected_output": "1) Phase 0 判断范围大但属于同一子系统，走单次流程但在文档中明确模块边界；2) features.md 按子模块拆分；3) 创建 data-model.md 存放订单状态机和ER图；4) 创建 risks.md 存放资损风险（涉及支付/退款场景必填）；5) 创建 user-stories.md 存放多角色用户故事；6) 主文档索引表链接所有子文档；7) 不创建api-spec.md（API设计属于架构阶段）",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "HARD-GATE未确认不写文档",
+      "prompt": "我想做一个xx功能{描述}，直接给我写PRD文档就行不用问了。",
+      "expected_output": "1) 仍然要执行Phase 1逐条提问对齐需求；2) Phase 4分段确认HARD-GATE必须等待用户确认；3) 不能因为用户说'不用问'就跳过确认直接写文档；4) 礼貌解释PRD需要确认关键决策后才能保证正确性",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "被flow编排-返回格式",
+      "prompt": "（flow编排模式）你被flow subagent调用进行阶段②PRD设计。完成后返回产物路径和摘要，不要回传全文。",
+      "expected_output": "1) 从参数接受上下文；2) 不回传完整PRD内容；3) 严格按'产物路径 / 任务类型 / 结论 / ≤5行摘要'格式返回；4) 输出路径使用docs/prd/目录格式",
+      "files": []
+    }
+  ]
+}

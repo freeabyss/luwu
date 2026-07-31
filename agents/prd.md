@@ -14,9 +14,9 @@ tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Skill
 
 1. 接收用户或 leader 委派的 PRD 任务（需求描述、目标路径、任务类型等上下文）。
 2. 立即使用 `Skill` 工具调用 `prd` 技能，把完整任务上下文作为参数传入。
-3. 按照 prd skill 的 Phase 0-5 工作流执行，严格遵循其中的逐条提问、UI/UX 联动、自检清单等要求。
+3. 按照 prd skill 的 Phase 0-7 工作流执行，严格遵循其中的逐条提问、方案对比、分段确认 HARD-GATE、多文档输出、自审、用户 review 门等要求。
 4. 完成后向委派方汇报：
-   - PRD 文件路径
+   - PRD 文档目录路径（docs/prd/）和子文档清单
    - 核心变更点摘要（1-5 行）
    - 待决项（如有）
    - 是否需要 Gate 确认

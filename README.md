@@ -7,7 +7,7 @@
 本插件沉淀了个人 AI 辅助开发的完整工作流，包含：
 
 - **Flow 全流程编排 skill**：从需求到 PR 的完整项目生命周期管理
-- **PRD 撰写**：结构化产品需求文档生成
+- **PRD 撰写**：逐条提问+方案对比+分段确认，多文档结构输出
 - **架构设计/评审**：技术方案设计与独立评审双模式
 - **任务拆解**：Write Plan 细粒度任务拆分
 - **TDD 开发**：测试驱动开发规范
@@ -30,7 +30,7 @@ luwu/
 ├── skills/                  # Skills 集合
 │   ├── flow/                # 全流程编排 skill
 │   ├── architecture/        # 架构设计与评审
-│   ├── prd/                 # PRD 生成器
+│   ├── prd/                 # PRD 撰写（多文档输出到 docs/prd/）
 │   ├── test/                # 测试全流程助手
 │   ├── code-review/         # 代码审查
 │   ├── test-driven-development/  # TDD 规范
@@ -141,8 +141,12 @@ flow skill 会自动执行完整流程：
 PRD 撰写专家，使用 prd skill 完成：
 
 - 逐条提问对齐需求（一次一个问题）
+- 需求存在多种路径时提供 2-3 方案对比
+- 分段呈现关键决策，HARD-GATE 确认后才写文档
 - UI/UX 设计决策自动联动 ui-ux-pro-max skill
 - 数据可视化需求联动 dataviz skill
+- 多文档输出到 `docs/prd/`（主文档 + features/user-stories/ui-ux/non-functional/data-model/risks 子文档）
+- 自审清单 + 用户 review 门确保质量
 - 已有 PRD 的版本维护和变更记录
 
 ## Skills 说明
@@ -156,6 +160,20 @@ PRD 撰写专家，使用 prd skill 完成：
 - 测试设计与执行分离（阶段⑦⑧必须不同 subagent）
 - Stage Gate 机制：PRD/架构/任务拆分/测试完成后等待用户确认
 
+
+### PRD Skill
+
+PRD 撰写 skill，融合 brainstorming 的设计确认流程：
+
+- 逐条提问对齐需求（一次一个问题，带推荐选项）
+- 需求存在多种实现路径时，提供 2-3 方案对比与 trade-off
+- 分段确认 HARD-GATE：关键决策未确认不得进入文档编写
+- 多文档输出到 `docs/prd/` 目录：
+  - `README.md`：主文档（背景、目标、范围总纲、索引表）
+  - `features.md`：功能需求详情（必建）
+  - `user-stories.md` / `ui-ux.md` / `non-functional.md` / `data-model.md` / `risks.md`：按需创建
+- 自审清单（占位符/一致性/范围/歧义）
+- 用户 review 门：书面确认后才能进入架构阶段
 
 ### Architecture Skill
 
