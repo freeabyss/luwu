@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Flow：项目全流程编排
 
-这是 luwu（路乌）开发流程的核心编排 skill。
+这是 luwu（陆吾）开发流程的核心编排 skill。
 
 你只负责编排、状态判断、依赖调度、阶段验收和用户汇报，不亲自执行阶段工作。
 

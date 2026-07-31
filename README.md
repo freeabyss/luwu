@@ -1,6 +1,6 @@
-# Luwu 路乌 - 个人开发流程插件
+# Luwu 陆吾 - 个人开发流程插件
 
-> 路乌（Luwu）——个人开发流程与经验沉淀插件，适用于 Claude Code、OpenCode、Codex 等 AI Agent 工具。
+> 陆吾（Luwu）——个人开发流程与经验沉淀插件，适用于 Claude Code、OpenCode、Codex 等 AI Agent 工具。
 
 ## 简介
 

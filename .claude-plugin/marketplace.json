@@ -5,14 +5,14 @@
     "name": "abyss"
   },
   "metadata": {
-    "description": "路乌（Luwu）——个人开发流程与经验沉淀插件，包含 Leader 全流程编排、PRD、架构、TDD、测试、代码审查、知识沉淀 Skills。",
+    "description": "陆吾（Luwu）——个人开发流程与经验沉淀插件，包含 Leader 全流程编排、PRD、架构、TDD、测试、代码审查、知识沉淀 Skills。",
     "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "luwu",
       "source": "./",
-      "description": "路乌（Luwu）——个人开发流程与经验沉淀插件，包含 Leader 全流程编排、PRD 撰写、架构设计/评审、TDD 开发、测试全流程、代码审查、知识沉淀。",
+      "description": "陆吾（Luwu）——个人开发流程与经验沉淀插件，包含 Leader 全流程编排、PRD 撰写、架构设计/评审、TDD 开发、测试全流程、代码审查、知识沉淀。",
       "version": "1.0.0",
       "author": {
         "name": "abyss"
