@@ -1,0 +1,11 @@
+{
+  "name": "luwu",
+  "version": "1.0.0",
+  "description": "陆吾（Luwu）——个人开发流程与经验沉淀插件。",
+  "author": {
+    "name": "abyss"
+  },
+  "license": "MIT",
+  "keywords": ["luwu", "development-workflow"],
+  "note": "Cursor uses project-level .cursor/rules/ conventions."
+}

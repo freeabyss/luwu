@@ -46,10 +46,30 @@ luwu/
 
 ## 安装
 
-### 前置条件
+### 一键安装（推荐）
 
-- Claude Code CLI 已安装
-- Git 已安装
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh)
+```
+
+支持命令：
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh)          # 安装（默认）
+bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) update   # 更新到最新版
+bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) uninstall # 卸载
+bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) --claude  # 仅安装 Claude Code
+bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) --codex   # 仅安装 Codex
+```
+
+安装脚本会自动检测已安装的 AI agent 工具并配置：
+- **Claude Code**：写入 settings.json 和 installed_plugins.json
+- **Codex**：symlink skills + 写入 config.toml + 配置 AGENTS.md
+
+前置条件：Git、jq（或 python3）。
+
+### 手动安装（本地开发）
+
+如果要基于源码修改插件，可以克隆仓库后手动配置：
 
 ### Claude Code 安装（本地路径方式）
 
