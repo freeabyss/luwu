@@ -26,9 +26,9 @@ luwu/
 ├── .codex-plugin/           # Codex 插件配置
 │   └── plugin.json
 ├── agents/                  # 自定义 Agents
-│   ├── leader.md            # 项目生命周期总指挥
 │   └── prd.md               # PRD 撰写专家
 ├── skills/                  # Skills 集合
+│   ├── flow/                # 全流程编排 skill
 │   ├── architecture/        # 架构设计与评审
 │   ├── prd/                 # PRD 生成器
 │   ├── test/                # 测试全流程助手
@@ -87,7 +87,7 @@ git submodule update --init --recursive
 }
 ```
 
-3. 重启 Claude Code，执行 `/leader` 验证安装成功。
+3. 重启 Claude Code，执行 `/flow` 验证安装成功。
 
 ### 更新插件
 
@@ -98,15 +98,15 @@ git submodule update --remote --merge
 
 ## 快速开始
 
-### 使用 Leader 全流程编排（推荐）
+### 使用 Flow 全流程编排 skill（推荐）
 
 在项目根目录下启动 Claude Code，然后输入：
 
 ```
-/leader
+/flow
 ```
 
-Leader agent 会自动执行完整流程：
+flow skill 会自动执行完整流程：
 
 1. **⓪ 初始化** - 创建功能分支、迭代目录
 2. **① 需求入库** - 从会议纪要或对话创建 GitHub Issue
@@ -136,15 +136,6 @@ Leader agent 会自动执行完整流程：
 
 ## Agents 说明
 
-### Leader Agent
-
-项目生命周期总指挥，只负责编排和验收，不亲自执行阶段工作。每个阶段委派独立 subagent，确保：
-
-- 设计与评审分离（阶段③④必须不同 subagent）
-- 开发与审查分离（阶段⑥每个任务开发后独立审查）
-- 测试设计与执行分离（阶段⑦⑧必须不同 subagent）
-- Stage Gate 机制：PRD/架构/任务拆分/测试完成后等待用户确认
-
 ### PRD Agent
 
 PRD 撰写专家，使用 prd skill 完成：
@@ -155,6 +146,16 @@ PRD 撰写专家，使用 prd skill 完成：
 - 已有 PRD 的版本维护和变更记录
 
 ## Skills 说明
+
+### Flow Skill
+
+项目生命周期总指挥，只负责编排和验收，不亲自执行阶段工作。每个阶段委派独立 subagent，确保：
+
+- 设计与评审分离（阶段③④必须不同 subagent）
+- 开发与审查分离（阶段⑥每个任务开发后独立审查）
+- 测试设计与执行分离（阶段⑦⑧必须不同 subagent）
+- Stage Gate 机制：PRD/架构/任务拆分/测试完成后等待用户确认
+
 
 ### Architecture Skill
 
@@ -272,7 +273,7 @@ git submodule add <git-url> skills/vendor/<skill-name>
 ### v1.0.0 (2026-07-30)
 
 - 初始版本
-- Leader 全流程编排 agent
+- Flow 全流程编排 skill
 - PRD agent
 - Architecture、PRD、Test、Code Review、TDD、Writing Plans、Knowledge Deposit skills
 - 集成 ui-ux-pro-max 第三方 skill
