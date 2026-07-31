@@ -1,12 +1,12 @@
-# Abyss DevFlow Plugin
+# Luwu 路乌 - 个人开发流程插件
 
-> 个人开发流程与经验沉淀插件，适用于 Claude Code、OpenCode、Codex 等 AI Agent 工具。
+> 路乌（Luwu）——个人开发流程与经验沉淀插件，适用于 Claude Code、OpenCode、Codex 等 AI Agent 工具。
 
 ## 简介
 
 本插件沉淀了个人 AI 辅助开发的完整工作流，包含：
 
-- **Leader 全流程编排**：从需求到 PR 的完整项目生命周期管理
+- **Flow 全流程编排 skill**：从需求到 PR 的完整项目生命周期管理
 - **PRD 撰写**：结构化产品需求文档生成
 - **架构设计/评审**：技术方案设计与独立评审双模式
 - **任务拆解**：Write Plan 细粒度任务拆分
@@ -19,7 +19,7 @@
 ## 目录结构
 
 ```
-abyss-plugin/
+luwu/
 ├── .claude-plugin/          # Claude Code 插件配置
 │   ├── plugin.json          # 插件 manifest
 │   └── marketplace.json     # Marketplace 配置
@@ -56,8 +56,8 @@ abyss-plugin/
 1. 克隆本仓库（含 submodule）：
 
 ```bash
-git clone --recurse-submodules <repo-url> abyss-devflow
-cd abyss-devflow
+git clone --recurse-submodules <repo-url> luwu
+cd luwu
 ```
 
 如果已经克隆了仓库但没有 submodule，执行：
@@ -70,16 +70,16 @@ git submodule update --init --recursive
 
 ```bash
 # 方法一：通过 /plugin 命令（在 Claude Code 中）
-/plugin install ./abyss-devflow
+/plugin install ./luwu
 
 # 方法二：手动配置 settings.json
 # 在 ~/.claude/settings.json 中添加：
 {
   "plugins": {
-    "abyss-devflow@local": [
+    "luwu@local": [
       {
         "scope": "user",
-        "installPath": "/path/to/abyss-devflow",
+        "installPath": "/path/to/luwu",
         "version": "1.0.0"
       }
     ]

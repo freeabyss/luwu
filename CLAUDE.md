@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-本文件为 Claude Code 提供 abyss-devflow-plugin 仓库的操作指南。
+本文件为 Claude Code 提供 luwu 仓库的操作指南。
 
 ---
 
@@ -65,7 +65,7 @@
 
 ```bash
 # 在插件目录下启动 Claude Code，它会自动识别 .claude-plugin/
-cd /path/to/abyss-plugin
+cd /path/to/luwu
 claude
 ```
 
