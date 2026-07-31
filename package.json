@@ -1,12 +1,13 @@
 {
-  "name": "abyss-devflow-plugin",
+  "name": "luwu-plugin",
   "version": "1.0.0",
-  "description": "个人开发流程与经验沉淀插件——Leader 全流程编排、PRD 撰写、架构设计/评审、TDD 开发、测试全流程、代码审查、知识沉淀。支持 Claude Code、OpenCode、Codex 等多 Agent 工具。",
+  "description": "路乌（Luwu）——个人开发流程与经验沉淀插件，包含 Leader 全流程编排、PRD 撰写、架构设计/评审、TDD 开发、测试全流程、代码审查、知识沉淀。支持 Claude Code、OpenCode、Codex 等多 Agent 工具。",
   "license": "MIT",
   "author": {
     "name": "abyss"
   },
   "keywords": [
+    "luwu",
     "claude-code",
     "opencode",
     "codex",
