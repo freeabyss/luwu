@@ -23,7 +23,6 @@
 │   ├── code-review/
 │   ├── test-driven-development/
 │   ├── writing-plans/
-│   ├── knowledge-deposit/
 │   └── vendor/        # 第三方 skills（git submodule）
 ├── commands/          # 自定义 slash commands
 └── hooks/             # Claude Code hooks

@@ -138,57 +138,226 @@ RADIO_ON="(●)"
 RADIO_OFF="( )"
 CHK_ON="[✓]"
 CHK_OFF="[ ]"
+CURSOR="❯"
+# ANSI: 反白（光标行）、清除到行尾
+REV='\033[7m'; RST='\033[0m'; CLR_EOL='\033[K'
 
-# 在交互式终端中用光标上移重绘，否则逐行追加打印
-_tt_redraw() {
-  local lines="$1"
-  if [ -t 1 ]; then
-    printf '\033[%dA\r' "$lines"
-  fi
+# ============ 终端原始模式 / 按键读取 ============
+STTY_SAVE=""
+
+tty_raw_on() {
+  [ -t 0 ] && [ -t 1 ] || return 1
+  STTY_SAVE=$(stty -g)
+  stty -echo -icanon min 1 time 0
+  trap 'tty_raw_off' EXIT INT TERM
+  return 0
+}
+
+tty_raw_off() {
+  [ -n "$STTY_SAVE" ] && stty "$STTY_SAVE" 2>/dev/null
+  STTY_SAVE=""
+  trap - EXIT INT TERM
+}
+
+# 读取一个按键，输出符号：UP / DOWN / ENTER / SPACE / 数字 / 其他字符
+read_key() {
+  local key rest
+  IFS= read -rsn1 key
+  case "$key" in
+    $'\x1b')
+      # 方向键为 ESC [ A/B/C/D 三字节；后两字节同批到达，立即读取
+      # -t 1 作为单独按 ESC 时的兜底（bash 3.2 的 read -t 仅支持整数秒）
+      IFS= read -rsn2 -t 1 rest 2>/dev/null || true
+      case "$rest" in
+        "[A") echo "UP" ;;
+        "[B") echo "DOWN" ;;
+        "[C") echo "RIGHT" ;;
+        "[D") echo "LEFT" ;;
+        *)   echo "ESC" ;;
+      esac
+      ;;
+    ""|$'\n'|$'\r') echo "ENTER" ;;
+    " ")            echo "SPACE" ;;
+    *)              printf '%s' "$key" ;;
+  esac
+}
+
+# 光标上移 N 行并回到行首
+move_up() {
+  printf '\033[%dA\r' "$1"
+}
+
+# 数组间接访问（兼容 bash 3.2，无 nameref）
+arr_len()     { eval "echo \${#$1[@]}"; }
+arr_get()     { eval "echo \"\${$1[\$2]}\""; }
+arr_get_bool(){ eval "eval \"[ \\\"\${$1[\$2]}\\\" = true ]\""; }
+
+# ============ 单选菜单（radio）============
+# 用法: menu_radio "标题" "项1" "项2" ...
+# 选中索引写入全局变量 MENU_RESULT
+MENU_RESULT=-1
+menu_radio() {
+  local title="$1"; shift
+  local -a items=("$@")
+  local n=${#items[@]}
+  local cur=0
+  local hint="↑/↓ 移动  回车确认  (也可按数字键)"
+
+  echo -e "${BOLD}${title}${NC}"
+
+  local i marker line key
+  while true; do
+    for ((i=0; i<n; i++)); do
+      if [ "$i" -eq "$cur" ]; then
+        marker="${GREEN}${RADIO_ON}${NC}"
+        line="${CURSOR} ${marker} ${items[$i]}"
+        printf "  ${REV}%b${RST}${CLR_EOL}\n" "$line"
+      else
+        marker="${RADIO_OFF}"
+        printf "   %b %b${CLR_EOL}\n" "$marker" "${items[$i]}"
+      fi
+    done
+    printf "  ${CYAN}%b${RST}${CLR_EOL}" "$hint"
+
+    key=$(read_key)
+    case "$key" in
+      UP|k)   cur=$(( (cur - 1 + n) % n )); move_up "$n" ;;
+      DOWN|j) cur=$(( (cur + 1) % n ));     move_up "$n" ;;
+      ENTER|SPACE) break ;;
+      [0-9])
+        local idx=$((key - 1))
+        if [ "$idx" -ge 0 ] && [ "$idx" -lt "$n" ]; then
+          cur=$idx; move_up "$n"
+        fi ;;
+    esac
+  done
+
+  printf "${CLR_EOL}\n"
+  MENU_RESULT=$cur
+}
+
+# ============ 多选菜单（checkbox）============
+# 用法: menu_checkbox "标题" 名称数组名 勾选数组名
+# 勾选数组元素为 true/false，会被原地修改（通过 eval）
+menu_checkbox() {
+  local title="$1"
+  local names_ref="$2"
+  local checked_ref="$3"
+  local n; n=$(arr_len "$names_ref")
+  local cur=0
+  local hint="↑/↓ 移动  空格勾选/取消  回车确认  (也可按数字键)"
+
+  echo -e "${BOLD}${title}${NC}"
+
+  local i mark name_i line key curval
+  while true; do
+    for ((i=0; i<n; i++)); do
+      name_i=$(arr_get "$names_ref" "$i")
+      if arr_get_bool "$checked_ref" "$i"; then
+        mark="${GREEN}${CHK_ON}${NC}"
+      else
+        mark="${CHK_OFF}"
+      fi
+      if [ "$i" -eq "$cur" ]; then
+        line="${CURSOR} ${mark} ${name_i}"
+        printf "  ${REV}%b${RST}${CLR_EOL}\n" "$line"
+      else
+        printf "   %b  %b${CLR_EOL}\n" "$mark" "$name_i"
+      fi
+    done
+    printf "  ${CYAN}%b${RST}${CLR_EOL}" "$hint"
+
+    key=$(read_key)
+    case "$key" in
+      UP|k)   cur=$(( (cur - 1 + n) % n )); move_up "$n" ;;
+      DOWN|j) cur=$(( (cur + 1) % n ));     move_up "$n" ;;
+      SPACE)
+        if arr_get_bool "$checked_ref" "$cur"; then
+          eval "$checked_ref[$cur]=false"
+        else
+          eval "$checked_ref[$cur]=true"
+        fi
+        move_up "$n" ;;
+      ENTER) break ;;
+      [0-9])
+        local idx=$((key - 1))
+        if [ "$idx" -ge 0 ] && [ "$idx" -lt "$n" ]; then
+          if arr_get_bool "$checked_ref" "$idx"; then
+            eval "$checked_ref[$idx]=false"
+          else
+            eval "$checked_ref[$idx]=true"
+          fi
+          move_up "$n"
+        fi ;;
+    esac
+  done
+
+  printf "${CLR_EOL}\n"
+}
+
+# ============ 回退：数字输入菜单（非 TTY 环境）============
+fallback_radio() {
+  local title="$1"; shift
+  local -a items=("$@")
+  local n=${#items[@]} i
+  echo -e "${BOLD}${title}${NC}"
+  for ((i=0; i<n; i++)); do
+    printf "  %d. %b\n" "$((i+1))" "${items[$i]}"
+  done
+  local choice
+  read -rp "请输入选项 [1]: " choice
+  choice="${choice:-1}"
+  MENU_RESULT=$((choice - 1))
+}
+
+fallback_checkbox() {
+  local names_ref="$1"
+  local checked_ref="$2"
+  local n; n=$(arr_len "$names_ref")
+  local i sel name_i
+  while true; do
+    for ((i=0; i<n; i++)); do
+      name_i=$(arr_get "$names_ref" "$i")
+      if arr_get_bool "$checked_ref" "$i"; then
+        printf "  [x] %d. %b\n" "$((i+1))" "$name_i"
+      else
+        printf "  [ ] %d. %b\n" "$((i+1))" "$name_i"
+      fi
+    done
+    read -rp "输入编号切换勾选，直接回车确认: " sel
+    [ -z "$sel" ] && break
+    for num in $sel; do
+      if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "$n" ]; then
+        local idx=$((num-1))
+        if arr_get_bool "$checked_ref" "$idx"; then
+          eval "$checked_ref[$idx]=false"
+        else
+          eval "$checked_ref[$idx]=true"
+        fi
+      fi
+    done
+    move_up "$n" 2>/dev/null || true
+  done
 }
 
 show_menu_action() {
-  echo -e "${BOLD}请选择操作 (单选):${NC}"
   local labels=("安装插件" "更新插件" "卸载插件")
   local cmds=("install" "update" "uninstall")
-  local selected=0  # 默认选第一个
-
-  _draw_action() {
-    for i in 0 1 2; do
-      if [ "$i" -eq "$selected" ]; then
-        printf "  ${GREEN}%s${NC} %d. %s\n" "$RADIO_ON" "$((i+1))" "${labels[$i]}"
-      else
-        printf "  %s %d. %s\n" "$RADIO_OFF" "$((i+1))" "${labels[$i]}"
-      fi
-    done
-  }
-
-  _draw_action
-  local choice
-  while true; do
-    read -rp "请输入选项 [1]: " choice
-    choice="${choice:-1}"
-    if [ "$choice" = "1" ] || [ "$choice" = "2" ] || [ "$choice" = "3" ]; then
-      selected=$((choice-1))
-      [ -t 1 ] && { _tt_redraw 3; _draw_action; }
-      break
-    fi
-    warn "无效选项，请输入 1、2 或 3"
-  done
-  COMMAND="${cmds[$selected]}"
+  if tty_raw_on; then
+    menu_radio "请选择操作 (单选):" "${labels[@]}"
+    tty_raw_off
+    echo ""
+  else
+    fallback_radio "请选择操作 (单选):" "${labels[@]}"
+  fi
+  COMMAND="${cmds[$MENU_RESULT]}"
 }
 
 show_menu_platforms() {
   echo ""
-  echo -e "${BOLD}请选择要配置的 Agent 工具 (多选):${NC}"
-  echo "  输入编号切换勾选状态，直接回车确认"
-  echo ""
-
   local -a plat_ids=()
   local -a plat_names=()
-  local -a plat_detected=()
   local -a plat_checked=()
-  local count=0
 
   for p in "${PLATFORMS[@]}"; do
     local id="${p%%|*}"
@@ -196,66 +365,32 @@ show_menu_platforms() {
     local name="${rest%%|*}"
     local dir="${rest#*|}"
     plat_ids+=("$id")
-    plat_names+=("$name")
     if [ -d "$dir" ]; then
-      plat_detected+=(true)
-      plat_checked+=(true)   # 已检测的默认勾选
+      name+="  ${GREEN}(已检测)${NC}"
+      plat_checked+=(true)
     else
-      plat_detected+=(false)
+      name+="  ${YELLOW}(未检测)${NC}"
       plat_checked+=(false)
     fi
-    count=$((count+1))
+    plat_names+=("$name")
   done
 
-  _draw_platforms() {
-    for i in "${!plat_ids[@]}"; do
-      local mark
-      if [ "${plat_checked[$i]}" = true ]; then
-        mark="${GREEN}${CHK_ON}${NC}"
-      else
-        mark="${CHK_OFF}"
-      fi
-      local tag=""
-      if [ "${plat_detected[$i]}" = true ]; then
-        tag="  ${GREEN}(已检测)${NC}"
-      else
-        tag="  ${YELLOW}(未检测，仍可强制选择)${NC}"
-      fi
-      # %b 解释变量中的 \033 转义序列
-      printf "  %b %d. %-13s%b\n" "$mark" "$((i+1))" "${plat_names[$i]}" "$tag"
-    done
+  if tty_raw_on; then
+    menu_checkbox "请选择要配置的 Agent 工具 (多选):" plat_names plat_checked
+    tty_raw_off
     echo ""
-  }
-
-  _draw_platforms
-  local sel
-  while true; do
-    read -rp "输入编号切换勾选（空格分隔多个），回车确认: " sel
-    [ -z "$sel" ] && break
-    for n in $sel; do
-      if [[ "$n" =~ ^[0-9]+$ ]] && [ "$n" -ge 1 ] && [ "$n" -le "$count" ]; then
-        local idx=$((n-1))
-        if [ "${plat_checked[$idx]}" = true ]; then
-          plat_checked[$idx]=false
-        else
-          plat_checked[$idx]=true
-        fi
-      else
-        warn "无效编号: $n（有效范围 1-$count）"
-      fi
-    done
-    if [ -t 1 ]; then
-      _tt_redraw $((count+1))
-      _draw_platforms
-    fi
-  done
+  else
+    echo -e "${BOLD}请选择要配置的 Agent 工具 (多选):${NC}"
+    fallback_checkbox plat_names plat_checked
+  fi
 
   INSTALL_CLAUDE=false
   INSTALL_CODEX=false
   INSTALL_OPENCODE=false
   INSTALL_ALL=false
 
-  for i in "${!plat_ids[@]}"; do
+  local i
+  for ((i=0; i<${#plat_ids[@]}; i++)); do
     if [ "${plat_checked[$i]}" = true ]; then
       case "${plat_ids[$i]}" in
         claude)   INSTALL_CLAUDE=true ;;

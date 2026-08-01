@@ -13,7 +13,6 @@
 - **TDD 开发**：测试驱动开发规范
 - **代码审查**：独立 subagent 代码审查
 - **测试全流程**：用例生成、评审、执行、报告
-- **知识沉淀**：自动提炼和归档开发经验
 - **UI/UX Design**：通过 vendor 集成 ui-ux-pro-max 设计技能
 
 ## 目录结构
@@ -35,7 +34,6 @@ luwu/
 │   ├── code-review/         # 代码审查
 │   ├── test-driven-development/  # TDD 规范
 │   ├── writing-plans/       # 任务拆解
-│   ├── knowledge-deposit/   # 知识沉淀
 │   └── vendor/              # 第三方 Skills（git submodule）
 │       └── ui-ux-pro-max/   # UI/UX 设计智能
 ├── commands/                # 自定义 Slash Commands
@@ -46,74 +44,17 @@ luwu/
 
 ## 安装
 
-### 一键安装（推荐）
-
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh)
 ```
 
-支持命令：
+安装脚本会自动检测已安装的 AI agent 工具并配置（Claude Code 写入 settings.json；Codex symlink skills 并写入 config.toml）。前置条件：Git、jq（或 python3）。
+
+其他命令：
+
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh)          # 安装（默认）
-bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) update   # 更新到最新版
+bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) update    # 更新
 bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) uninstall # 卸载
-bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) --claude  # 仅安装 Claude Code
-bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) --codex   # 仅安装 Codex
-```
-
-安装脚本会自动检测已安装的 AI agent 工具并配置：
-- **Claude Code**：写入 settings.json 和 installed_plugins.json
-- **Codex**：symlink skills + 写入 config.toml + 配置 AGENTS.md
-
-前置条件：Git、jq（或 python3）。
-
-### 手动安装（本地开发）
-
-如果要基于源码修改插件，可以克隆仓库后手动配置：
-
-### Claude Code 安装（本地路径方式）
-
-1. 克隆本仓库（含 submodule）：
-
-```bash
-git clone --recurse-submodules <repo-url> luwu
-cd luwu
-```
-
-如果已经克隆了仓库但没有 submodule，执行：
-
-```bash
-git submodule update --init --recursive
-```
-
-2. 在 Claude Code 中安装本地插件：
-
-```bash
-# 方法一：通过 /plugin 命令（在 Claude Code 中）
-/plugin install ./luwu
-
-# 方法二：手动配置 settings.json
-# 在 ~/.claude/settings.json 中添加：
-{
-  "plugins": {
-    "luwu@local": [
-      {
-        "scope": "user",
-        "installPath": "/path/to/luwu",
-        "version": "1.0.0"
-      }
-    ]
-  }
-}
-```
-
-3. 重启 Claude Code，执行 `/flow` 验证安装成功。
-
-### 更新插件
-
-```bash
-git pull
-git submodule update --remote --merge
 ```
 
 ## 快速开始
@@ -151,7 +92,6 @@ flow skill 会自动执行完整流程：
 | `/code-review` | 代码审查 |
 | `/tdd` | TDD 开发流程 |
 | `/writing-plans` | 任务拆解 |
-| `/knowledge-deposit` | 知识沉淀 |
 | `/ui-ux-pro-max` | UI/UX 设计 |
 
 ## Agents 说明
@@ -218,16 +158,6 @@ PRD 撰写 skill，融合 brainstorming 的设计确认流程：
 - 测试报告
 - 多语言/框架支持（Java/Vitest/Playwright/pytest/Go/Rust）
 - 按迭代目录组织
-
-### Knowledge Deposit Skill
-
-自动知识沉淀：
-
-- 扫描 inputs/ 目录增量内容
-- 按知识类型自动分类到对应目录
-- 质量等级评估（A/B/C）
-- 自动归档已处理文件
-- 自动提交推送到 GitHub
 
 ## 多平台支持
 
@@ -313,7 +243,7 @@ git submodule add <git-url> skills/vendor/<skill-name>
 - 初始版本
 - Flow 全流程编排 skill
 - PRD agent
-- Architecture、PRD、Test、Code Review、TDD、Writing Plans、Knowledge Deposit skills
+- Architecture、PRD、Test、Code Review、TDD、Writing Plans skills
 - 集成 ui-ux-pro-max 第三方 skill
 
 ## License
