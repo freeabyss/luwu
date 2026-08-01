@@ -18,6 +18,6 @@
     "knowledge-management",
     "ddd"
   ],
-  "agents": ["./agents/"],
+  "agents": ["./agents/prd.md"],
   "skills": ["./skills/"]
 }
