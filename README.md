@@ -50,13 +50,6 @@ bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.
 
 安装脚本会自动检测已安装的 AI agent 工具并配置（Claude Code 写入 settings.json；Codex symlink skills 并写入 config.toml）。前置条件：Git、jq（或 python3）。
 
-其他命令：
-
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) update    # 更新
-bash <(curl -fsSL https://raw.githubusercontent.com/freeabyss/luwu/main/install.sh) uninstall # 卸载
-```
-
 ## 快速开始
 
 ### 使用 Flow 全流程编排 skill（推荐）
