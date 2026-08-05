@@ -13,7 +13,8 @@
 - **TDD 开发**：测试驱动开发规范
 - **代码审查**：独立 subagent 代码审查
 - **测试全流程**：用例生成、评审、执行、报告
-- **UI/UX Design**：通过 vendor 集成 ui-ux-pro-max 设计技能
+- **Obsidian 笔记**：安装时自动拉取 Obsidian 创始人官方 skills（Markdown / CLI / Bases / Canvas）
+- **UI/UX Design**：安装时自动拉取 ui-ux-pro-max 设计技能
 
 ## 目录结构
 
@@ -24,8 +25,6 @@ luwu/
 │   └── marketplace.json     # Marketplace 配置
 ├── .codex-plugin/           # Codex 插件配置
 │   └── plugin.json
-├── agents/                  # 自定义 Agents
-│   └── prd.md               # PRD 撰写专家
 ├── skills/                  # Skills 集合
 │   ├── flow/                # 全流程编排 skill
 │   ├── architecture/        # 架构设计与评审
@@ -34,10 +33,11 @@ luwu/
 │   ├── code-review/         # 代码审查
 │   ├── test-driven-development/  # TDD 规范
 │   ├── writing-plans/       # 任务拆解
-│   └── vendor/              # 第三方 Skills（git submodule）
-│       └── ui-ux-pro-max/   # UI/UX 设计智能
+│   └── init-project/        # 项目初始化
 ├── commands/                # 自定义 Slash Commands
 ├── hooks/                   # Claude Code Hooks
+├── dependencies.json        # 第三方依赖声明（plugin/mcp/skill，安装时自动拉取）
+├── install.sh               # 一键安装脚本
 ├── package.json             # NPM 包元信息（跨平台）
 └── README.md                # 本文件
 ```
@@ -85,22 +85,11 @@ flow skill 会自动执行完整流程：
 | `/code-review` | 代码审查 |
 | `/tdd` | TDD 开发流程 |
 | `/writing-plans` | 任务拆解 |
+| `/obsidian-markdown` | 创建/编辑 Obsidian 笔记（wikilinks、callouts、frontmatter 等） |
+| `/obsidian-cli` | 通过 Obsidian CLI 读写/搜索/管理 vault（需 Obsidian 开启） |
+| `/obsidian-bases` | 创建/编辑 Obsidian Bases（`.base`） |
+| `/json-canvas` | 创建/编辑 JSON Canvas（`.canvas`） |
 | `/ui-ux-pro-max` | UI/UX 设计 |
-
-## Agents 说明
-
-### PRD Agent
-
-PRD 撰写专家，使用 prd skill 完成：
-
-- 逐条提问对齐需求（一次一个问题）
-- 需求存在多种路径时提供 2-3 方案对比
-- 分段呈现关键决策，HARD-GATE 确认后才写文档
-- UI/UX 设计决策自动联动 ui-ux-pro-max skill，输出页面原型（含布局线框图、页面流程、交互说明）
-- 数据可视化需求联动 dataviz skill
-- 多文档输出到 `docs/prd/`（主文档 + features/user-stories/prototype/non-functional/data-model/risks 子文档）
-- 自审清单 + 用户 review 门确保质量
-- 已有 PRD 的版本维护和变更记录
 
 ## Skills 说明
 
@@ -137,9 +126,12 @@ PRD 撰写 skill，融合 brainstorming 的设计确认流程：
 核心特性：
 - 五类批量术语澄清（冲突/模糊/缺失/重复/矛盾）
 - DDD 启发式判断
-- 全局 ADR/工程规范对齐
 - 多方案对比推荐
 - 文档拆分（design-api.md / design-database.md 等）
+
+**内置知识资产**（随插件分发，不依赖用户本机路径）：技术方案模板、ADR/CONTEXT 模板、Mermaid 示例位于 `skills/architecture/references/`；强制的 **Java/DDD 工程分层规范**（分层边界、事务使用、Lombok、Repository 命名、统一分页 `PageResult`）唯一副本位于 `skills/flow/references/java-engineering-standard.md`。
+
+`/flow` 在阶段⓪/①探测到 Java 项目后，会把该规范完整内联注入到架构设计(③)、架构评审(④)、开发与代码审查(⑥)、测试(⑦⑧)各阶段 subagent 的 prompt 中强制对照；独立调用 `/architecture`、`/code-review` 时则各自从该唯一副本读取。
 
 ### Test Skill
 
@@ -181,31 +173,18 @@ PRD 撰写 skill，融合 brainstorming 的设计确认流程：
 
 ## 第三方依赖
 
-本插件使用以下第三方 skill，通过 git submodule 管理：
+第三方 skill / 插件**不随仓库分发**，而是在根目录的 `dependencies.json` 中声明。`install.sh` 安装或更新时会检查依赖是否存在，缺失则通过各平台官方方式自动安装。
 
-- [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) - UI/UX 设计智能
-  - 84 UI 风格、192 色板、74 字体组合、98 UX 准则、25 图表类型
-  - 支持 22 种技术栈（React、Vue、Svelte、Flutter、SwiftUI 等）
+当前声明的依赖（均为 Claude Code marketplace 插件，官方途径安装）：
+
+- [obsidian-skills](https://github.com/kepano/obsidian-skills) — Obsidian 创始人 Steph Ango (kepano) 官方维护，提供 `obsidian-markdown`、`obsidian-cli`、`obsidian-bases`、`json-canvas`、`defuddle`
+- [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) — UI/UX 设计智能（84 UI 风格、192 色板、74 字体组合、98 UX 准则、25 图表类型，22 种技术栈）
+
+`dependencies.json` 的每条依赖包含 `name`、`type`（`plugin` / `mcp` / `skill`，后两者为预留类型）、`platforms`、`marketplace`、`repo` 等字段。安装失败时仅告警不阻断，可按提示手动执行 `claude plugin marketplace add <repo>` 与 `claude plugin install <name>@<marketplace>`。
+
+> 说明：第三方依赖目前只在 **Claude Code** 平台自动安装。Obsidian vault 本质是本地 Markdown 文件夹，`obsidian-markdown` / `json-canvas` 直接读写文件，无需 Obsidian 常驻；`obsidian-cli` 需要 Obsidian 运行并安装 Obsidian CLI。
 
 ## 自定义配置
-
-### 添加新的 Agent
-
-在 `agents/` 目录下创建新的 `.md` 文件，格式：
-
-```markdown
----
-name: agent-name
-description: Agent 描述
-model: inherit
-effort: high
-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, Skill
----
-
-# Agent 标题
-
-具体 prompt 内容...
-```
 
 ### 添加新的 Skill
 
@@ -223,19 +202,32 @@ user-invocable: true
 具体工作流...
 ```
 
-### 添加第三方 Skill 作为 Submodule
+### 添加第三方依赖
 
-```bash
-git submodule add <git-url> skills/vendor/<skill-name>
+不要把第三方代码拷进仓库。在根目录 `dependencies.json` 的 `dependencies` 数组中追加一条，安装/更新脚本会自动拉取：
+
+```json
+{
+  "name": "<plugin-name>",
+  "type": "plugin",
+  "platforms": ["claude"],
+  "marketplace": "<marketplace-name>",
+  "repo": "<owner>/<repo>",
+  "description": "可选说明"
+}
 ```
 
 ## 更新日志
+
+### Unreleased
+
+- 移除 `skills/vendor` submodule 方式，改为根目录 `dependencies.json` 声明第三方依赖；`install.sh` 安装/更新时检查并按官方方式自动拉取
+- 新增 [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) 官方 skill 集作为依赖：obsidian-markdown、obsidian-cli、obsidian-bases、json-canvas、defuddle
 
 ### v1.0.0 (2026-07-30)
 
 - 初始版本
 - Flow 全流程编排 skill
-- PRD agent
 - Architecture、PRD、Test、Code Review、TDD、Writing Plans skills
 - 集成 ui-ux-pro-max 第三方 skill
 

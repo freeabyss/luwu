@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "dependencies": [
+    {
+      "name": "obsidian",
+      "type": "plugin",
+      "platforms": ["claude"],
+      "marketplace": "obsidian-skills",
+      "repo": "kepano/obsidian-skills",
+      "description": "Obsidian 官方 skills：Markdown / CLI / Bases / Canvas / Defuddle"
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "type": "plugin",
+      "platforms": ["claude"],
+      "marketplace": "ui-ux-pro-max-skill",
+      "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "description": "UI/UX 设计智能（84 风格 / 192 色板 / 74 字体组合 / 22 技术栈）"
+    }
+  ]
+}
