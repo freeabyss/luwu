@@ -13,6 +13,7 @@ set -euo pipefail
 # ============ 配置 ============
 REPO_URL="https://github.com/freeabyss/luwu.git"
 GITHUB_REPO="freeabyss/luwu"
+RAW_DEPS_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/main/dependencies.json"
 INSTALL_DIR="$HOME/.luwu"
 PLUGIN_NAME="luwu"
 MARKETPLACE_NAME="luwu-plugin"
@@ -424,8 +425,6 @@ install_repo() {
     git clone "$REPO_URL" "$INSTALL_DIR"
     cd "$INSTALL_DIR"
   fi
-  info "初始化 submodule..."
-  git submodule update --init --recursive
   ok "仓库就绪: $INSTALL_DIR (commit: $(git rev-parse --short HEAD))"
 }
 
@@ -438,8 +437,65 @@ update_repo() {
   cd "$INSTALL_DIR"
   info "拉取最新代码..."
   git pull origin main
-  git submodule update --init --recursive
   ok "已更新到最新版本 (commit: $(git rev-parse --short HEAD))"
+}
+
+# ============ 依赖插件安装 ============
+# 读取 dependencies.json：优先本地 clone（$INSTALL_DIR），否则从 GitHub raw 拉取。
+load_dependencies_json() {
+  if [ -f "$INSTALL_DIR/dependencies.json" ]; then
+    cat "$INSTALL_DIR/dependencies.json"
+  elif command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$RAW_DEPS_URL" 2>/dev/null || true
+  fi
+}
+
+# 检查某 Claude 插件是否已安装（精确匹配 name@marketplace 整行，忽略前导 cursor/空白）。
+is_claude_plugin_installed() {
+  local name="$1" mkt="$2"
+  claude plugin list 2>/dev/null \
+    | sed 's/^[[:space:]]*❯[[:space:]]*//; s/^[[:space:]]*//' \
+    | grep -qx "${name}@${mkt}"
+}
+
+# 安装 dependencies.json 中声明的 Claude 平台插件：已安装则跳过，缺失则按官方方式添加 marketplace 并安装。
+install_dependencies() {
+  if ! command -v claude >/dev/null 2>&1; then
+    info "  跳过依赖安装（未检测到 claude CLI）"
+    return 0
+  fi
+  local deps_json
+  deps_json=$(load_dependencies_json)
+  if [ -z "$deps_json" ]; then
+    warn "  无法获取 dependencies.json，跳过依赖安装"
+    return 0
+  fi
+
+  info "检查依赖插件..."
+  local name mkt repo
+  while IFS=$'\t' read -r name mkt repo; do
+    [ -n "$name" ] || continue
+    if is_claude_plugin_installed "$name" "$mkt"; then
+      ok "  已安装: ${name}@${mkt}"
+      continue
+    fi
+    info "  安装依赖: ${name}@${mkt} (from ${repo})"
+    if claude plugin marketplace add "$repo" 2>&1 | grep -qi "successfully added\|already"; then
+      if claude plugin install "${name}@${mkt}" 2>&1 | grep -qi "successfully installed\|already installed\|already enabled"; then
+        ok "    已安装: ${name}@${mkt}"
+      else
+        warn "    ${name} 安装失败，请手动执行: claude plugin install ${name}@${mkt}"
+      fi
+    else
+      warn "    添加 marketplace 失败: ${repo}，请手动执行: claude plugin marketplace add ${repo}"
+    fi
+  done < <(printf '%s' "$deps_json" | python3 -c '
+import json, sys
+data = json.load(sys.stdin)
+for d in data.get("dependencies", []):
+    if d.get("type") == "plugin" and "claude" in d.get("platforms", []):
+        print("\t".join([d["name"], d["marketplace"], d["repo"]]))
+')
 }
 
 # ============ Claude Code 安装 ============
@@ -480,6 +536,9 @@ sys.exit(0 if src.get('source') == 'directory' else 1)
     return 1
   fi
 
+  echo ""
+  install_dependencies
+
   ok "Claude Code 配置完成"
 }
 
@@ -494,16 +553,14 @@ install_codex() {
 
   local config_file="$codex_dir/config.toml"
   local skills_dir="$codex_dir/skills"
-  local agents_file="$codex_dir/AGENTS.md"
   mkdir -p "$skills_dir"
 
   local abs_install_dir
   abs_install_dir=$(cd "$INSTALL_DIR" && pwd)
 
-  # Symlink skills（排除 vendor 目录）
+  # Symlink skills
   for skill_dir in "$INSTALL_DIR"/skills/*/; do
     skill_name=$(basename "$skill_dir")
-    [ "$skill_name" = "vendor" ] && continue
     local link="$skills_dir/$skill_name"
     if [ -L "$link" ]; then
       rm "$link"
@@ -546,34 +603,6 @@ EOF
     info "已创建 config.toml"
   fi
 
-  # AGENTS.md 添加 prd agent 引用
-  if [ -f "$agents_file" ]; then
-    if grep -q "luwu/prd agent" "$agents_file" 2>/dev/null; then
-      info "AGENTS.md 中已存在 luwu 引用"
-    else
-      backup_file "$agents_file"
-      cat >> "$agents_file" <<EOF
-
----
-## luwu/prd agent
-
-PRD 撰写专家代理。当用户需要撰写、修改、评审 PRD 时，请参考以下定义：
-- 读取 \`$abs_install_dir/agents/prd.md\` 作为 prd agent 的系统提示
-EOF
-      info "已追加 prd agent 引用到 AGENTS.md"
-    fi
-  else
-    cat > "$agents_file" <<EOF
-# Codex Global Agents
-
-## luwu/prd agent
-
-PRD 撰写专家代理。当用户需要撰写、修改、评审 PRD 时，请参考以下定义：
-- 读取 \`$abs_install_dir/agents/prd.md\` 作为 prd agent 的系统提示
-EOF
-    info "已创建 AGENTS.md"
-  fi
-
   ok "Codex 配置完成"
 }
 
@@ -587,16 +616,14 @@ install_opencode() {
   info "配置 OpenCode..."
 
   local skills_dir="$oc_dir/skills"
-  local agents_file="$oc_dir/AGENTS.md"
   mkdir -p "$skills_dir"
 
   local abs_install_dir
   abs_install_dir=$(cd "$INSTALL_DIR" && pwd)
 
-  # Symlink skills（排除 vendor 目录）
+  # Symlink skills
   for skill_dir in "$INSTALL_DIR"/skills/*/; do
     skill_name=$(basename "$skill_dir")
-    [ "$skill_name" = "vendor" ] && continue
     local link="$skills_dir/$skill_name"
     if [ -L "$link" ]; then
       rm "$link"
@@ -607,34 +634,6 @@ install_opencode() {
     ln -s "$skill_dir" "$link"
     info "  skills/$skill_name -> $skill_dir"
   done
-
-  # AGENTS.md 添加 luwu 引用
-  if [ -f "$agents_file" ]; then
-    if grep -q "luwu/prd agent" "$agents_file" 2>/dev/null; then
-      info "AGENTS.md 中已存在 luwu 引用"
-    else
-      backup_file "$agents_file"
-      cat >> "$agents_file" <<EOF
-
----
-## luwu/prd agent
-
-PRD 撰写专家代理。当用户需要撰写、修改、评审 PRD 时，请参考以下定义：
-- 读取 \`$abs_install_dir/agents/prd.md\` 作为 prd agent 的系统提示
-EOF
-      info "已追加 prd agent 引用到 AGENTS.md"
-    fi
-  else
-    cat > "$agents_file" <<EOF
-# OpenCode Global Instructions
-
-## luwu/prd agent
-
-PRD 撰写专家代理。当用户需要撰写、修改、评审 PRD 时，请参考以下定义：
-- 读取 \`$abs_install_dir/agents/prd.md\` 作为 prd agent 的系统提示
-EOF
-    info "已创建 AGENTS.md"
-  fi
 
   ok "OpenCode 配置完成"
 }
@@ -673,24 +672,12 @@ with open('$codex_config','w') as f: f.write(content)
     if [ -d "$codex_skills" ]; then
       for skill_dir in "$INSTALL_DIR"/skills/*/; do
         skill_name=$(basename "$skill_dir")
-        [ "$skill_name" = "vendor" ] && continue
         local link="$codex_skills/$skill_name"
         if [ -L "$link" ]; then
           rm "$link"
           info "  移除 Codex symlink: $link"
         fi
       done
-    fi
-    local codex_agents="$HOME/.codex/AGENTS.md"
-    if [ -f "$codex_agents" ]; then
-      backup_file "$codex_agents"
-      python3 -c "
-import re
-with open('$codex_agents') as f: c=f.read()
-c = re.sub(r'\n---\n## luwu/prd agent[\s\S]*?(?=\n---\n|\Z)', '', c)
-with open('$codex_agents','w') as f: f.write(c)
-"
-      ok "已从 Codex AGENTS.md 移除 luwu 引用"
     fi
   fi
 
@@ -700,24 +687,12 @@ with open('$codex_agents','w') as f: f.write(c)
     if [ -d "$oc_skills" ]; then
       for skill_dir in "$INSTALL_DIR"/skills/*/; do
         skill_name=$(basename "$skill_dir")
-        [ "$skill_name" = "vendor" ] && continue
         local link="$oc_skills/$skill_name"
         if [ -L "$link" ]; then
           rm "$link"
           info "  移除 OpenCode symlink: $link"
         fi
       done
-    fi
-    local oc_agents="$HOME/.config/opencode/AGENTS.md"
-    if [ -f "$oc_agents" ]; then
-      backup_file "$oc_agents"
-      python3 -c "
-import re
-with open('$oc_agents') as f: c=f.read()
-c = re.sub(r'\n---\n## luwu/prd agent[\s\S]*?(?=\n---\n|\Z)', '', c)
-with open('$oc_agents','w') as f: f.write(c)
-"
-      ok "已从 OpenCode AGENTS.md 移除 luwu 引用"
     fi
   fi
 
@@ -773,6 +748,8 @@ main() {
       if $INSTALL_CLAUDE && command -v claude >/dev/null 2>&1; then
         info "更新 Claude Code 插件..."
         claude plugin update "${PLUGIN_NAME}@${MARKETPLACE_NAME}" 2>&1 || true
+        echo ""
+        install_dependencies
       fi
       # codex/opencode 拉取最新仓库后重新链接
       if $needs_local_repo; then
