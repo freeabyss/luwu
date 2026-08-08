@@ -498,6 +498,33 @@ for d in data.get("dependencies", []):
 ')
 }
 
+# ============ 个人知识库脚手架 ============
+# 在默认路径 ~/.luwu/knowledge-base/ 铺好 index.md + 00_template/ + 01_global/ 骨架。
+# 只补不盖：已存在的文件（用户已沉淀的知识）一律不动。
+scaffold_knowledge_base() {
+  local kb_dir="${LUWU_KB_PATH:-$HOME/.luwu/knowledge-base}"
+  local scaffold_src="$INSTALL_DIR/skills/init-project/references/kb-scaffold"
+
+  if [ ! -d "$scaffold_src" ]; then
+    # 通过 curl 安装且本地无 clone 时，脚手架源可能不存在；init-project 运行时仍会兜底。
+    info "未找到知识库脚手架源（$scaffold_src），跳过；首次运行 /init-project 时会自动创建。"
+    return 0
+  fi
+
+  if [ -f "$kb_dir/index.md" ]; then
+    info "个人知识库已存在: $kb_dir（保留已有内容，不覆盖）"
+    return 0
+  fi
+
+  info "初始化个人知识库: $kb_dir"
+  mkdir -p "$kb_dir/00_template" "$kb_dir/01_global"
+  # 逐个拷贝，已存在则不覆盖
+  [ -f "$kb_dir/index.md" ]              || cp "$scaffold_src/index.md"              "$kb_dir/index.md"
+  [ -f "$kb_dir/00_template/README.md" ] || cp "$scaffold_src/00_template/README.md" "$kb_dir/00_template/README.md"
+  [ -f "$kb_dir/01_global/README.md" ]   || cp "$scaffold_src/01_global/README.md"   "$kb_dir/01_global/README.md"
+  ok "个人知识库就绪: $kb_dir（在 index.md 登记你的通用知识与自定义模板）"
+}
+
 # ============ Claude Code 安装 ============
 # Claude Code 使用官方 CLI 从 GitHub marketplace 安装，无需本地 clone 或手写 JSON。
 install_claude() {
@@ -795,6 +822,10 @@ main() {
     $INSTALL_CODEX && { install_codex; echo ""; }
     $INSTALL_OPENCODE && { install_opencode; echo ""; }
   fi
+
+  # 个人知识库脚手架（只补不盖；无本地 clone 时跳过，init-project 运行时兜底）
+  scaffold_knowledge_base
+  echo ""
 
   echo ""
   ok "陆吾插件${COMMAND}完成！"

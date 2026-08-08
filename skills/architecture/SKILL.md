@@ -1,8 +1,8 @@
 ---
 name: architecture
-description: 架构设计与技术方案评审。支持 design（设计）与 review（评审）双模式，涵盖术语澄清、DDD 启发式判断、多方案对比、文档拆分。仅通过 /architecture 显式调用。
+description: 架构设计与技术方案评审。支持 design（设计）与 review（评审）双模式，涵盖术语澄清、DDD 启发式判断、多方案对比、文档拆分。可通过对应 slash command 调用，也可被 flow 编排调用。
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # 架构设计与评审
@@ -17,18 +17,25 @@ disable-model-invocation: true
 
 ## 路径约定
 
-知识库统一路径（**不是** `~/workspace/document/`）：
+**模板已内置在本 skill 的 `references/` 目录下**（与 SKILL.md 同目录），随插件分发，优先使用，不依赖用户本机路径：
 
-| 资源 | 路径 |
+| 资源 | 内置路径（references/） |
 |---|---|
-| 技术方案模板 | `~/workspace/person/template/architecture-template.md` |
-| ADR 模板 | `~/workspace/person/template/adr-template.md` |
-| CONTEXT 模板 | `~/workspace/person/template/context-template.md` |
-| Mermaid 示例 | `~/workspace/person/template/mermaid-examples.md` |
-| 全局架构原则 | `~/workspace/person/core/architecture/` |
-| 全局工程规范 | `~/workspace/person/core/engineering/` |
-| 全局 ADR | `~/workspace/person/core/decisions/` |
-| 经验教训 | `~/workspace/person/lessons/` |
+| 技术方案模板 | `references/architecture-template.md` |
+| ADR 模板 | `references/adr-template.md` |
+| CONTEXT 模板 | `references/context-template.md` |
+| Mermaid 示例 | `references/mermaid-examples.md` |
+
+**Java 工程分层规范**由 flow skill 统一持有（唯一副本 `../flow/references/java-engineering-standard.md`）：
+
+- **被 flow 编排时**：flow 探测到 Java 项目后，会把该规范完整内联进本 skill 的 prompt（见「## 团队 Java/DDD 工程规范」一节），直接按其执行，无需自行读文件。
+- **独立调用 `/architecture` 时**：若判定为 Java 项目，自行读取 `../flow/references/java-engineering-standard.md` 并对照执行。
+
+**个人知识库（通用知识 + 自定义模板）**：用户可配置本地知识库，加载规则的唯一权威副本在 `../flow/references/knowledge-base-loading.md`。要点：
+
+- **被 flow 编排时**：flow 阶段⓪探测知识库，按阶段把命中的 `01_global/` 通用知识内联进 prompt，并告知是否有 `00_template/` 模板覆盖。直接按注入内容执行，**不要自行再读知识库**。
+- **独立调用 `/architecture` 时**：按该规范解析 KB 路径（项目 `.claude/luwu.json` → `LUWU_KB_PATH` → `~/.luwu/knowledge-base/`）；若存在则读 `<kb>/index.md`，加载「适用场景/阶段」命中架构设计/评审的 `01_global/` 条目；模板优先用 index.md 中登记的 `00_template/architecture.md`、`00_template/adr.md` 等，未命中再用上表内置模板。
+- 未配置知识库时静默回退，只用内置 `references/`，行为与之前一致。
 
 **项目文档目录自动探测**（不硬编码 `doc/`）：用户指定 > `docs/README.md` > `doc/README.md` > `prd.md` 所在目录。
 
@@ -40,13 +47,13 @@ disable-model-invocation: true
 
 ```
 1 读 README.md → 2 加载 PRD/现有架构/ADR/CONTEXT → 3 按类别批量术语澄清
-→ 4 启发式判断 DDD → 5 对齐全局 ADR/工程规范
+→ 4 启发式判断 DDD → 5 对齐 ADR/工程规范
 → 6 多方案对比(2-3种) → 7 输出技术方案+ADR+CONTEXT → 8 自评审 → 返回
 ```
 
 ### 1. 加载文档
-- **首次**：PRD + 项目规范 + 全局架构原则 +（Java 项目必读）`Java-工程分层规范.md`
-- **调整/重构**：PRD + 现有架构 + CONTEXT + ADR + 相关代码（读关键模块，不通读）+ `lessons/`
+- **首次**：PRD + 项目规范 +（Java 项目）工程规范：优先用 flow 注入的「团队 Java/DDD 工程规范」一节；独立调用时读 `../flow/references/java-engineering-standard.md`
+- **调整/重构**：PRD + 现有架构 + CONTEXT + ADR + 相关代码（读关键模块，不通读）
 
 ### 2. 按类别批量术语澄清
 
@@ -68,7 +75,7 @@ disable-model-invocation: true
 ```
 
 澄清后：
-- 确认的术语写入 `CONTEXT.md`（参考 `~/workspace/person/template/context-template.md`）
+- 确认的术语写入 `CONTEXT.md`（参考 `references/context-template.md`）
 - 量化指标回填到技术方案"需求分析"章节
 - 用户表示"你定"时按推荐值执行，标注"架构师建议值，实现前二次确认"
 
@@ -80,11 +87,11 @@ disable-model-invocation: true
 
 不用 DDD 的信号：纯 CRUD / 工具系统 / 一次性项目 / 团队不熟悉且周期紧。
 
-确认用 DDD 后，按本团队的 DDD 规范和包结构执行（参考 ~/workspace/person/core/architecture/ 下的相关规范）；不用则走经典分层。
+确认用 DDD 后，按注入/持有的 Java 工程规范中的 DDD 分层与包结构执行；不用则走经典分层。
 
-### 4. 对齐全局决策
+### 4. 决策对齐
 
-设计前扫 `~/workspace/person/core/decisions/` 和项目已有 ADR。与全局决策冲突时：记录为矛盾点，不私自改，在方案中显式说明偏离原因并建议更新全局 ADR。
+设计前扫项目已有 ADR。与已有决策冲突时：记录为矛盾点，不私自改，在方案中显式说明偏离原因并建议更新 ADR。
 
 ### 5. 多方案对比
 
@@ -92,7 +99,7 @@ disable-model-invocation: true
 
 ### 6. 输出文档
 
-位置按 README.md 指引。主架构文档参考 `~/workspace/person/template/architecture-template.md` 的章节结构，但**不要为了凑模板章节强行填写**——模板是检查清单不是填空题，按实际需求保留相关章节，不涉及的直接省略（如无消息队列则不写消息章节，单机房部署则不写多活灾备）。
+位置按 README.md 指引。主架构文档参考 `references/architecture-template.md` 的章节结构，但**不要为了凑模板章节强行填写**——模板是检查清单不是填空题，按实际需求保留相关章节，不涉及的直接省略（如无消息队列则不写消息章节，单机房部署则不写多活灾备）。
 
 **技术方案里不出现代码**——只写设计（架构图、模块职责、表结构、接口定义、状态机、数据流、选型理由等），不写 Java/TS/SQL 等具体实现代码。代码是开发阶段的产物，不是架构文档的内容。伪代码、SQL 建表语句、API 路径参数这些算设计，可以写；但完整的类定义、方法体、业务逻辑实现代码不要出现在方案里。
 
@@ -110,7 +117,7 @@ disable-model-invocation: true
 | design-database.md | 数据库设计 | 202X-XX-XX |
 ```
 
-ADR 按 `~/workspace/person/template/adr-template.md` 记录到项目 ADR 目录。
+ADR 按 `references/adr-template.md` 记录到项目 ADR 目录。
 
 所有文档末尾维护"变更记录"（追加式，不覆盖历史）。
 
@@ -138,12 +145,12 @@ ADR 按 `~/workspace/person/template/adr-template.md` 记录到项目 ADR 目录
 ## review 模式流程
 
 ```
-1 读 README.md → 2 加载被评审方案+PRD+CONTEXT+ADR+全局规范
+1 读 README.md → 2 加载被评审方案+PRD+CONTEXT+ADR+工程规范
 → 3 按维度逐项评审 → 4 输出分级问题清单+修订建议+结论 → 返回
 ```
 
 ### 1. 加载材料
-被评审方案 + 对应 PRD + CONTEXT + 项目 ADR + 全局架构/工程/ADR。
+被评审方案 + 对应 PRD + CONTEXT + 项目 ADR +（Java 项目）工程规范（优先 flow 注入，独立调用读 `../flow/references/java-engineering-standard.md`）。
 
 ### 2. 评审
 reviewer **不 redesign**，只挑问题、给修订方向。问题按严重程度分级（阻塞/应修/建议）。

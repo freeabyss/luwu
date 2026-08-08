@@ -1,8 +1,8 @@
 ---
 name: code-review
-description: 代码审查。派发独立 reviewer subagent 对变更进行审查，按严重程度分级问题（阻塞/应修/建议）。仅通过 /code-review 显式调用。
+description: 代码审查。派发独立 reviewer subagent 对变更进行审查，按严重程度分级问题（阻塞/应修/建议）。可通过对应 slash command 调用，也可被 flow 编排调用。
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Requesting Code Review
@@ -40,6 +40,21 @@ Dispatch a `general-purpose` subagent, filling the template at [code-reviewer.md
 - `{PLAN_OR_REQUIREMENTS}` - What it should do
 - `{BASE_SHA}` - Starting commit
 - `{HEAD_SHA}` - Ending commit
+
+**Language standards (important):**
+
+Check whether the diff touches `.java` files. If it does, the reviewer prompt MUST include the team's mandatory Java/DDD engineering standard (layering, transactions, Lombok, Repository naming, unified `PageResult`), under a section titled `## 团队 Java/DDD 工程规范（强制遵循）`:
+
+- **If flow already injected that section into your prompt** (you were dispatched by flow stage ⑥): pass its exact content through into the reviewer prompt verbatim — do not re-read or summarize it.
+- **If invoked independently** (no injected section): read the canonical copy at `../flow/references/java-engineering-standard.md` (relative to this SKILL.md) yourself and append its full contents under that section.
+
+The template instructs the reviewer to enforce these rules; without the actual content in its prompt the independent subagent cannot see it. For non-Java diffs, skip this step.
+
+**Personal knowledge base:** A local knowledge base may provide cross-project conventions (`01_global/`) indexed by `<kb>/index.md`. The canonical loading rules live in `../flow/references/knowledge-base-loading.md`.
+
+- **If flow injected a `## 团队通用知识（来自知识库，强制遵循）` section into your prompt** (you were dispatched by flow stage ⑥): pass that content through into the reviewer prompt verbatim under the same section, and tell the reviewer to enforce it — do not re-read the knowledge base.
+- **If invoked independently**: resolve the KB path per that file (project `.claude/luwu.json` → `LUWU_KB_PATH` → `~/.luwu/knowledge-base/`); if `<kb>/index.md` exists, read it and load the `01_global/` entries whose "适用场景/阶段" matches code review / ⑥, appending their full contents under that same section.
+- If no knowledge base is configured, skip silently and rely on built-in guidance only.
 
 **3. Act on feedback:**
 - Fix Critical issues immediately

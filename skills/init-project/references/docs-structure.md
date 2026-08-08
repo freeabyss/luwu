@@ -56,4 +56,8 @@ to-be 设计并更新这些文档。
   保证目录与索引完整。
 - 项目里已存在成熟文档时，不重复创建：在 `docs/README.md` 索引里指向已有位置即可，
   并在汇报中说明。
-- 不创建全局知识库（`~/workspace/person/...`）里的文件；那是跨项目资产，由知识沉淀流程维护。
+- 跨项目/全局的个人知识资产（通用规范、自定义模板等）不放在项目 `docs/` 下，而存放在
+  个人知识库中（结构：`index.md` 索引 + `01_global/` 通用知识 + `00_template/` 模板），
+  路径由项目 `.claude/luwu.json` 的 `knowledgeBasePath` 指定（回退 `$LUWU_KB_PATH` /
+  `~/.luwu/knowledge-base/`）。init-project 负责为该路径搭骨架并写项目指针；知识库的
+  加载与模板覆盖规则见 `skills/flow/references/knowledge-base-loading.md`。

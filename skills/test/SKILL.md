@@ -1,8 +1,8 @@
 ---
 name: test
-description: 测试全流程。生成用例（五维度场景）、评审用例、执行测试、产出报告，覆盖单元/集成/API/E2E，支持多语言框架。仅通过 /test 显式调用。
+description: 测试全流程。生成用例（五维度场景）、评审用例、执行测试、产出报告，覆盖单元/集成/API/E2E，支持多语言框架。可通过对应 slash command 调用，也可被 flow 编排调用。
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Test Skill - 测试全流程助手
@@ -233,6 +233,14 @@ cases/
 | `reference/java-api-test.md` | REST Assured 真实 HTTP 测试、基类封装、认证、双重断言 |
 | `reference/frontend-unit-test.md` | 前端组件/Hook/工具函数 Vitest + Testing Library 示例 |
 | `reference/frontend-e2e-playwright.md` | Playwright Page Object 模式端到端流程示例 |
+
+### 个人知识库
+
+用户可配置本地知识库提供跨项目的测试约定（`01_global/`）和自定义模板（`00_template/`）。加载规则的唯一权威副本在 `../flow/references/knowledge-base-loading.md`。
+
+- **被 flow 编排（阶段⑦/⑧）时**：flow 会把命中「测试设计/测试执行/测试」的 `01_global/` 知识内联进 prompt；直接遵循，不要自行再读知识库。
+- **独立调用 `/test` 时**：按该规范解析 KB 路径（项目 `.claude/luwu.json` → `LUWU_KB_PATH` → `~/.luwu/knowledge-base/`）；存在则读 `<kb>/index.md`，加载「适用场景/阶段」命中测试的 `01_global/` 条目（如团队测试分层、覆盖率红线）；测试约定通常以 `01_global/` 知识条目补充，而非覆盖上表内置 `reference/` 文件。
+- 未配置知识库时静默回退，只用内置 `reference/`。
 
 ---
 

@@ -71,6 +71,15 @@ docs/
 
 Read these before making non-trivial changes so your work matches the existing design and test coverage.
 
+### Personal knowledge base
+
+If a personal knowledge base is configured (path in `.claude/luwu.json` → `knowledgeBasePath`,
+falling back to `$LUWU_KB_PATH` or `~/.luwu/knowledge-base/`), read `<kb>/index.md` first and
+load only the `01_global/` entries whose "适用场景/阶段" (applicable stage) matches your task.
+Prefer document templates under `00_template/` over the plugin's built-in templates when a match
+exists; otherwise fall back to the built-in ones. If no knowledge base is present, ignore this
+section and use built-in defaults.
+
 ## Conventions & Constraints
 
 {Naming, branching model, commit message format, directories/files not to touch,

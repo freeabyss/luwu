@@ -34,6 +34,29 @@ Subagent (general-purpose):
 
     Your review is read-only on this checkout. Do not mutate the working tree, the index, HEAD, or branch state in any way. Use tools like `git show`, `git diff`, and `git log` to inspect history. If you need a working copy of a different revision, check it out into a separate temporary directory (e.g. `git worktree add /tmp/review-[SHA] [SHA]`) — never move HEAD on this checkout.
 
+    ## Language/Stack-Specific Standards
+
+    If the prompt includes a "团队 Java/DDD 工程规范" section (titled e.g.
+    "## 团队 Java/DDD 工程规范（强制遵循）"), the
+    diff touches Java code and you MUST check the change against every rule in
+    that section. In particular verify:
+      - Layering/dependency direction (interfaces → application → domain ← infrastructure);
+        no cross-aggregate direct Repository calls; Controller has no business logic;
+        DO ↔ Domain Entity conversion goes through Assembler.
+      - Transactions: `@Transactional` only on write methods in ApplicationService;
+        no class-level `@Transactional` on ApplicationService; no transactions on
+        domain/repository; query methods left without a transaction.
+      - Lombok is used to drop getters/setters/constructors (no hand-written boilerplate);
+        domain entities don't blindly use `@Data`.
+      - Repository query methods named `findById` (single) / `findAll` (paginated batch);
+        no `listByXxx`/`selectXxx`/`queryXxxPage` variants.
+      - Paged results use the shared `PageResult<T>` (pageNum/pageSize/totalPage/
+        totalElements/data); no per-module duplicate page objects.
+    Each violation is an Important issue (a broken layering/dependency rule is
+    Critical); cite the rule and the file:line.
+
+    For other languages, apply idiomatic conventions; no extra standard to load.
+
     ## What to Check
 
     **Plan alignment:**

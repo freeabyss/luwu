@@ -1,8 +1,8 @@
 ---
 name: prd
-description: PRD 撰写。逐条提问对齐需求，方案对比分段确认，输出多文档结构 PRD 到 docs/prd/，自动联动 UI/UX 设计。仅通过 /prd 显式调用。
+description: PRD 撰写。逐条提问对齐需求，方案对比分段确认，输出多文档结构 PRD 到 docs/prd/，自动联动 UI/UX 设计。可通过对应 slash command 调用，也可被 flow 编排调用。
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 # PRD 撰写
 
@@ -233,7 +233,7 @@ PRD 是否需要包含图表、图形、仪表盘或数据可视化？
 
 #### 5.2 起草步骤
 
-1. Read `references/PRD_TEMPLATES.md`（与本 SKILL.md 同目录），使用其中的模板。
+1. 确定模板来源：若配置了个人知识库（见下方「个人知识库」）且其 `index.md` 登记了覆盖 PRD 的 `00_template/` 模板，则用用户模板；否则 Read `references/PRD_TEMPLATES.md`（与本 SKILL.md 同目录）使用内置模板。
 2. 先创建主文档 `README.md` 骨架和索引表，再逐个创建需要的子文档。
 3. 功能需求必须可验证，不写"正常工作""优化体验"等含糊表述。
 4. 若涉及界面，描述页面交互、校验、异常提示，在验收标准中要求真实界面验证。
@@ -328,4 +328,12 @@ PRD 是否需要包含图表、图形、仪表盘或数据可视化？
 
 - `references/PRD_TEMPLATES.md` — PRD 模板集（主文档+所有子文档模板），生成/完善/改写 PRD 时必须读取
 - `docs/2026-07-26-prd-uiux-linkage-design.md` — UI/UX 联动设计记录（参考用）
+
+## 个人知识库
+
+用户可配置本地知识库提供跨项目的通用知识（`01_global/`，如领域术语、业务规则）和自定义 PRD 模板（`00_template/`）。加载规则的唯一权威副本在 `../flow/references/knowledge-base-loading.md`。
+
+- **被 flow 编排（阶段②）时**：flow 会把命中的 `01_global/` 知识内联进 prompt，并告知是否有 `00_template/` 模板覆盖；直接遵循注入内容，不要自行再读知识库。
+- **独立调用 `/prd` 时**：按该规范解析 KB 路径（项目 `.claude/luwu.json` → `LUWU_KB_PATH` → `~/.luwu/knowledge-base/`）；存在则读 `<kb>/index.md`，加载「适用场景/阶段」命中 PRD/产品设计/需求的 `01_global/` 条目；模板优先用 index.md 登记的、覆盖 `prd/references/PRD_TEMPLATES.md` 的用户模板，未命中用上面的内置模板。
+- 未配置知识库时静默回退，只用内置 `references/`。
 

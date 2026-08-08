@@ -5,7 +5,7 @@
       "id": 1,
       "name": "design-首次架构-DDD业务系统",
       "prompt": "我们要做一个简单的电商系统，用户可以浏览商品、下单购买、支付。PRD在 docs/prd.md（模拟存在）。请进行技术方案设计。",
-      "expected_output": "1) 探测 docs/ 目录并读取 README；2) 按类别批量做术语澄清（冲突/模糊/缺失/重复/矛盾）；3) 启发式判断使用 DDD（业务型系统、有订单/支付领域）；4) 提供2-3种架构方案对比；5) 输出技术方案文档（用 ~/workspace/person/template/architecture-template.md 结构，不是 ~/workspace/document/）；6) 输出 ADR 和 CONTEXT.md；7) 自评审清单检查；8) 返回产物路径 + ≤5行摘要",
+      "expected_output": "1) 探测 docs/ 目录并读取 README；2) 按类别批量做术语澄清（冲突/模糊/缺失/重复/矛盾）；3) 启发式判断使用 DDD（业务型系统、有订单/支付领域）；4) 提供2-3种架构方案对比；5) 输出技术方案文档（用本 skill references/architecture-template.md 结构，不是 ~/workspace/document/）；6) 输出 ADR 和 CONTEXT.md；7) 自评审清单检查；8) 返回产物路径 + ≤5行摘要",
       "files": []
     },
     {
@@ -40,7 +40,7 @@
       "id": 6,
       "name": "编排模式-路径正确",
       "prompt": "（leader 编排模式）你被 leader subagent 调用进行阶段③架构设计。项目根目录 /tmp/demo，文档根 docs/，PRD路径 docs/prd.md。设计完成后返回产物路径和摘要。",
-      "expected_output": "1) 从参数接受项目根、PRD路径，不询问；2) 不回传完整文档内容；3) 严格按 '产物路径 / 模式 / 结论 / ≤5行摘要' 格式返回；4) 路径使用 ~/workspace/person/ 而非 ~/workspace/document/",
+      "expected_output": "1) 从参数接受项目根、PRD路径，不询问；2) 不回传完整文档内容；3) 严格按 '产物路径 / 模式 / 结论 / ≤5行摘要' 格式返回；4) 模板使用本 skill 内置 references/，Java 规范由 flow 注入或从 ../flow/references/ 读取，不硬编码外部绝对路径",
       "files": []
     }
   ]

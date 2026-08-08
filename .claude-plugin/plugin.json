@@ -1,7 +1,7 @@
 {
   "name": "luwu",
   "description": "陆吾（Luwu）——个人开发流程与经验沉淀插件，包含 Flow 全流程编排、PRD 撰写、架构设计/评审、TDD 开发、测试全流程、代码审查、知识沉淀。支持 Claude Code、OpenCode、Codex 等多 Agent 工具。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "abyss"
   },
@@ -18,6 +18,5 @@
     "knowledge-management",
     "ddd"
   ],
-  "agents": ["./agents/prd.md"],
   "skills": ["./skills/"]
 }

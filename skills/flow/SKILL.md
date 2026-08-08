@@ -125,6 +125,67 @@ disable-model-invocation: true
   - 在项目 `.claude/` 目录下创建 `plan.md`（结构见「执行计划 plan.md」一节）
   - 阶段⓪先填入分支、迭代目录等已知信息；阶段①前由 leader 完成「输入概况」（来源与类型判断）和完整阶段计划
   - 若 `.claude/plan.md` 已存在，视为恢复执行，不重新创建，转入「状态恢复」流程读取并续接
+5. **知识库探测**
+  - 按「知识库探测与知识注入」一节解析知识库路径；若配置了知识库，读取其 `index.md`
+  - 把知识库路径、是否启用、index.md 中登记的知识/模板清单写入 plan.md「注意事项」或「输入概况」，供后续各阶段注入时筛选
+  - 未配置知识库则记为"未启用"，后续跳过注入，不影响流程
+
+## 技术栈探测与内置规范注入
+
+flow 是唯一掌握「这是什么项目」的编排者，负责把团队内置规范按需注入下游 subagent，而不是让各 skill 各自硬编码依赖。
+
+**阶段⓪/①探测技术栈**：根据项目根的构建文件判定，并把结论写入 plan.md「输入概况」或「注意事项」：
+
+- Java / Spring Boot / DDD：存在 `pom.xml` / `build.gradle` / `src/main/java`
+
+**Java 项目必须注入内置规范**：若判定为 Java 项目，leader 在派发以下阶段 subagent 时，先读取本 skill 同目录下的 `references/java-engineering-standard.md`，将其**完整内容内联**到该 subagent 的 prompt 中（建议放在独立的「## 团队 Java/DDD 工程规范（强制遵循）」一节），并明确要求对照执行：
+
+| 阶段 | subagent | 注入后要它做什么 |
+|---|---|---|
+| ③ 架构设计 | architecture design | 方案遵循分层边界、Repository 命名、统一分页 `PageResult` 等规范 |
+| ④ 架构评审 | architecture review | 逐条对照规范评审被审方案 |
+| ⑥ 开发 | tdd | 实现代码遵循事务、Lombok、分层依赖、Repository 命名、分页规范 |
+| ⑥ 审查 | code-review | 按规范逐条审查 diff（事务位置、分层越界、Lombok、命名、分页对象），违规判 Important、破坏分层判 Critical |
+| ⑦⑧ 测试 | test | 按规范的测试分层（领域层单测 / API 真实 HTTP 等）组织 |
+
+为什么内联而不是让 subagent 自己读文件：subagent 运行在项目工作目录下，无法可靠定位 skill 安装路径；leader 读到内容后注入 prompt 才能保证它确实看见。
+
+非 Java 项目不注入。后续若新增其他语言/技术栈的内置规范，在此处扩展探测条件与注入清单即可。
+
+## 知识库探测与知识注入
+
+除随插件分发的内置规范外，用户可在一个**本地知识库**（KB）中沉淀跨项目的通用知识
+（`01_global/`）和自定义文档模板（`00_template/`），通过 `index.md` 按需索引。
+完整契约与路径解析规则见本 skill 同目录 `references/knowledge-base-loading.md`（唯一权威副本）。
+
+**阶段⓪探测**：leader 解析 KB 路径（项目 `.claude/luwu.json` 的 `knowledgeBasePath` →
+环境变量 `LUWU_KB_PATH` → 默认 `~/.luwu/knowledge-base/`；显式 `null` 为禁用）。若该路径存在且含
+`index.md`，读取它并把命中清单记入 plan.md；未配置则本节整体跳过。
+
+**派发前按阶段注入**：派发每个阶段 subagent 前，leader 从 index.md「通用知识」表中，
+按下方对应关系筛出「适用场景/阶段」命中本阶段的 `01_global/` 文件，Read 后把**全文内联**
+到 subagent prompt 的独立章节 `## 团队通用知识（来自知识库，强制遵循）`；同时把与本阶段
+相关的 `00_template/` 自定义模板路径告知 subagent（命中则替代内置模板，未命中用内置）。
+标注「全局/所有阶段」的条目在②–⑧每个阶段都注入。
+
+| 阶段 | 匹配 index.md「适用场景/阶段」关键词 |
+|---|---|
+| ② 产品设计 | `②` / `PRD` / `产品设计` / `需求` |
+| ③ 架构设计 | `③` / `架构设计` / `技术方案` |
+| ④ 架构评审 | `④` / `架构评审` |
+| ⑤ 任务拆解 | `⑤` / `任务拆解` / `计划` |
+| ⑥ 开发（tdd） | `⑥` / `开发` / `TDD` / `编码` |
+| ⑥ 代码审查 | `⑥` / `代码审查` / `code-review` |
+| ⑦ 测试用例 | `⑦` / `测试设计` / `测试用例` |
+| ⑧ 测试执行 | `⑧` / `测试执行` / `测试` |
+
+subagent 收到 prompt 中已内联的知识时直接遵循，**不要再自行读取知识库**；leader 未注入
+（未配置 KB 或该阶段无命中条目）时 subagent 也无需尝试加载。⓪初始化、⑨提交PR一般不注入，
+除非条目明确点名这两个阶段。
+
+知识库与内置 Java 规范是两套可叠加的注入内容：判定为 Java 项目时，按上一节注入
+`java-engineering-standard.md`；配置了知识库时，按本节注入命中的 `01_global/` 内容；
+二者都在同一 prompt 中以独立章节给出，互不替代。
 
 ## 编排规则
 

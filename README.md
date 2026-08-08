@@ -33,7 +33,7 @@ luwu/
 │   ├── code-review/         # 代码审查
 │   ├── test-driven-development/  # TDD 规范
 │   ├── writing-plans/       # 任务拆解
-│   └── init-project/        # 项目初始化
+│   └── init-project/        # 项目初始化（含个人知识库脚手架）
 ├── commands/                # 自定义 Slash Commands
 ├── hooks/                   # Claude Code Hooks
 ├── dependencies.json        # 第三方依赖声明（plugin/mcp/skill，安装时自动拉取）
@@ -144,6 +144,26 @@ PRD 撰写 skill，融合 brainstorming 的设计确认流程：
 - 多语言/框架支持（Java/Vitest/Playwright/pytest/Go/Rust）
 - 按迭代目录组织
 
+## 个人知识库
+
+陆吾支持一个**本地个人知识库**，跨项目沉淀通用知识和自定义文档模板，与插件随附的内置模板分离：
+
+```
+<kb-root>/
+├── index.md            # 知识索引：路径 + 作用 + 适用场景/阶段，agent 据此按需加载
+├── 00_template/        # 用户自定义文档模板（覆盖插件内置 references 模板）
+└── 01_global/          # 通用知识：编码规范、架构原则、领域术语、业务规则等
+```
+
+- **指定位置**：`/init-project` 接入项目时确认知识库路径，写入项目 `.claude/luwu.json` 的 `knowledgeBasePath`。
+- **路径解析**：项目 `.claude/luwu.json` → 环境变量 `LUWU_KB_PATH` → 全局默认 `~/.luwu/knowledge-base/`；显式设为 `null` 可在某项目禁用。
+- **按需加载**：agent 先读 `<kb>/index.md`，按「适用场景/阶段」只加载命中的 `01_global/` 条目，不全量读取。
+- **模板覆盖**：`00_template/` 中在 index.md 登记的自定义模板优先于插件内置 `references/` 模板，未命中则回退内置。
+- **flow 注入**：`/flow` 在阶段⓪探测知识库，按阶段把命中的通用知识内联注入各阶段 subagent（与内置 Java 规范注入同构）。
+- 路径不存在或无 `index.md` 时静默回退到仅用内置模板，不报错、不阻断。
+
+加载规则的权威说明见 `skills/flow/references/knowledge-base-loading.md`；`/init-project` 在知识库目录为空时会自动脚手架 `index.md` 与两个子目录（只补不盖）。
+
 ## 多平台支持
 
 本插件遵循跨平台插件规范，理论上支持：
@@ -219,8 +239,10 @@ user-invocable: true
 
 ## 更新日志
 
-### Unreleased
+### v1.1.0 (2026-08-08)
 
+- 新增**个人知识库**机制：`/init-project` 指定本地知识库目录（`.claude/luwu.json` 的 `knowledgeBasePath`，回退 `$LUWU_KB_PATH` / `~/.luwu/knowledge-base/`），目录为空时自动脚手架 `index.md` + `00_template/` + `01_global/`；各 skill 先读 `index.md` 按需加载通用知识、模板用户优先内置兜底；`/flow` 阶段⓪探测并按阶段内联注入下游 subagent（权威规范 `skills/flow/references/knowledge-base-loading.md`）
+- `/init-project` 改为**幂等、可重复执行**：先探测已接入状态，已存在的文件/目录/配置默认保留，只补缺失项；重复执行不覆盖已核对或迭代过的文档，重建需用户明确同意且先备份
 - 移除 `skills/vendor` submodule 方式，改为根目录 `dependencies.json` 声明第三方依赖；`install.sh` 安装/更新时检查并按官方方式自动拉取
 - 新增 [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) 官方 skill 集作为依赖：obsidian-markdown、obsidian-cli、obsidian-bases、json-canvas、defuddle
 

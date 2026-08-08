@@ -1,8 +1,8 @@
 ---
 name: writing-plans
-description: 任务拆解与计划编写。将需求拆分为可独立执行的细粒度任务，明确文件、接口、测试步骤和提交点，遵循 DRY/YAGNI/TDD。仅通过 /writing-plans 或被 flow 编排时显式调用。
+description: 任务拆解与计划编写。将需求拆分为可独立执行的细粒度任务，明确文件、接口、测试步骤和提交点，遵循 DRY/YAGNI/TDD。可通过对应 slash command 调用，也可被 flow 编排调用。
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Writing Plans
@@ -19,6 +19,14 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
+
+## Personal knowledge base
+
+A local knowledge base may provide cross-project conventions (`01_global/`) indexed by `<kb>/index.md`; canonical loading rules are in `../flow/references/knowledge-base-loading.md`.
+
+- **If flow injected a `## 团队通用知识（来自知识库，强制遵循）` section** (dispatched by flow stage ⑤): follow it directly; do not re-read the knowledge base.
+- **If invoked independently**: resolve the KB path (project `.claude/luwu.json` → `LUWU_KB_PATH` → `~/.luwu/knowledge-base/`); if `<kb>/index.md` exists, read it and load `01_global/` entries whose "适用场景/阶段" matches ⑤ / 任务拆解 / 计划 (e.g. task-splitting conventions, commit rules).
+- If no knowledge base is configured, skip silently.
 
 ## Scope Check
 

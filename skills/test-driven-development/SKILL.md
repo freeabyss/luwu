@@ -1,8 +1,8 @@
 ---
 name: test-driven-development
-description: TDD 测试驱动开发。遵循 Red-Green-Refactor 循环，要求先写失败测试再写实现代码，禁止跳过。仅通过 /tdd 或被 flow 编排时显式调用。
+description: TDD 测试驱动开发。遵循 Red-Green-Refactor 循环，要求先写失败测试再写实现代码，禁止跳过。可通过对应 slash command 调用，也可被 flow 编排调用。
 user-invocable: true
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Test-Driven Development (TDD)
@@ -210,6 +210,14 @@ When writing or changing any test, read [writing-good-tests.md](writing-good-tes
 - Assert on real behavior, never on mock behavior
 - Keep test-only code in test utilities, out of production classes
 - Understand a dependency's side effects before mocking it
+
+## Personal knowledge base
+
+A local knowledge base may provide cross-project coding/testing conventions (`01_global/`) and custom templates (`00_template/`), indexed by `<kb>/index.md`. The canonical loading rules are in `../flow/references/knowledge-base-loading.md`.
+
+- **If flow injected a `## 团队通用知识（来自知识库，强制遵循）` section** (you were dispatched by flow stage ⑥): follow that content directly; do not re-read the knowledge base.
+- **If invoked independently**: resolve the KB path per that file (project `.claude/luwu.json` → `LUWU_KB_PATH` → `~/.luwu/knowledge-base/`); if `<kb>/index.md` exists, read it and load the `01_global/` entries whose "适用场景/阶段" matches ⑥ / 开发 / TDD / 编码.
+- If no knowledge base is configured, skip silently and rely on the built-in rules above only.
 
 ## Common Rationalizations
 

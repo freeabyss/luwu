@@ -51,6 +51,16 @@
 
 复制 `.claude-plugin/plugin.json` 格式，创建 `.{platform}-plugin/plugin.json`。
 
+### 个人知识库机制
+
+陆吾支持本地个人知识库（`index.md` 索引 + `01_global/` 通用知识 + `00_template/` 自定义模板），跨项目复用：
+
+- 加载规则的**唯一权威副本**是 `skills/flow/references/knowledge-base-loading.md`，各 skill 引用它、不得各自复制规则
+- 路径解析顺序：项目 `.claude/luwu.json` 的 `knowledgeBasePath` → 环境变量 `LUWU_KB_PATH` → `~/.luwu/knowledge-base/`；缺失静默回退内置 `references/`
+- `skills/init-project/references/kb-scaffold/` 是知识库脚手架种子（init-project 在目录为空时复制，只补不盖）
+- 新增可被 `00_template/` 覆盖的内置模板时，在 `knowledge-base-loading.md` 的模板映射表登记
+- 模板覆盖原则：用户模板优先、内置兜底；flow 编排时由 leader 探测并内联注入，subagent 不自行读 KB
+
 ### 其他
 
 修改skill、agent、command后，同步修改README.md文档，使其保持一致
