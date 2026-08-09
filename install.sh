@@ -557,7 +557,12 @@ sys.exit(0 if src.get('source') == 'directory' else 1)
 
   # 安装插件
   if claude plugin install "${PLUGIN_NAME}@${MARKETPLACE_NAME}" 2>&1 | grep -qi "successfully installed\|already installed\|already enabled"; then
-    ok "  插件已启用: ${PLUGIN_NAME}@${MARKETPLACE_NAME}"
+    # install 不会自动 enable（升级/重装/曾被 disable 时保留 disabled 状态），显式启用一次
+    if claude plugin enable "${PLUGIN_NAME}@${MARKETPLACE_NAME}" 2>&1 | grep -qi "enabled\|already enabled"; then
+      ok "  插件已启用: ${PLUGIN_NAME}@${MARKETPLACE_NAME}"
+    else
+      warn "  插件已安装但启用失败，请手动执行: claude plugin enable ${PLUGIN_NAME}@${MARKETPLACE_NAME}"
+    fi
   else
     err "  插件安装失败"
     return 1
